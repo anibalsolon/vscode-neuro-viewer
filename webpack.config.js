@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyPlugin = require("copy-webpack-plugin");
 
 const dist = path.resolve(__dirname, 'dist');
 
@@ -54,8 +55,19 @@ const webview = {
   ...general,
   target: 'web',
   entry: {
-    webview: './webview/index.js'
+    webview_nifti: './webview/nifti/index.js'
   },
+  output: {
+    ...general.output,
+    filename: 'webview/nifti/index.js',
+  },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        { from: "webview", to: "webview" },
+      ],
+    }),
+  ],
 };
 
 module.exports = [extension, webview];

@@ -186,16 +186,16 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
   private async getHtmlForWebview(webview: vscode.Webview): Promise<string> {
 
     const scriptUri = webview.asWebviewUri(vscode.Uri.file(
-      path.join(this._context.extensionPath, 'dist', 'webview.js')
+      path.join(this._context.extensionPath, 'dist', 'webview', 'nifti', 'index.js')
     ));
     const styleUri = webview.asWebviewUri(vscode.Uri.file(
-      path.join(this._context.extensionPath, 'webview', 'index.css')
+      path.join(this._context.extensionPath, 'dist', 'webview', 'nifti', 'index.css')
     ));
 
     const nonce = getNonce();
     const context = this._context;
 
-    const data = await fs.readFile(path.join(context.extensionPath, 'webview', 'index.html'), { encoding: 'utf-8' });
+    const data = await fs.readFile(path.join(context.extensionPath, 'dist', 'webview', 'nifti', 'index.html'), { encoding: 'utf-8' });
 
     return data
       .replace(/\$\{webview\.cspSource\}/g, webview.cspSource)

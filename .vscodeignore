@@ -11,3 +11,5 @@ webpack.config.js
 node_modules
 tsconfig.json
 data
+extension
+webview

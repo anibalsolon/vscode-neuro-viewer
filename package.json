@@ -1,7 +1,7 @@
 {
 	"name": "neuro-viewer",
-	"displayName": "Nifti Viewer",
-	"description": "View your Nifti files within VSCode!",
+	"displayName": "Neuro Viewer",
+	"description": "View your neuroimaging files in VSCode!",
 	"version": "0.0.1",
 	"publisher": "anibalsolon",
 	"engines": {

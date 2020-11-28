@@ -1,0 +1,50 @@
+html, body {
+    margin: 1em; padding: 0;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+    align-items: stretch;
+
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    top: 0;
+}
+
+body > * {
+    margin: 0px;
+}
+
+thead {
+    margin-top: 3px;
+}
+
+th, td {
+    text-align: center;
+    padding: 3px;
+}
+
+td {
+    background: var(--vscode-menu-background);
+}
+
+th {
+    background: var(--vscode-activityBar-background);
+}
+
+#canvas {
+    margin-top: 1em;
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+canvas {
+    image-rendering: pixelated;
+    position: absolute;
+}

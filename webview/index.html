@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} blob:; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nifti Viewer</title>
+  <link href="${styleUri}" rel="stylesheet">
+</head>
+<body>
+  <table>
+    <thead>
+      <tr>
+        <th>Dimensions</th>
+        <th>Data Resolution</th>
+        <th>Orientation</th>
+        <th>Data Type</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td id="dimensions"></td>
+        <td id="pixel_sizes"></td>
+        <td id="orientation"></td>
+        <td id="data_type"></td>
+      </tr>
+    </tbody>
+    <thead>
+      <tr>
+        <th colspan="4">Geometry</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td colspan="4" id="geometry"></td>
+      </tr>
+    </tbody>
+  </table>
+  <div id="canvas">
+    <canvas id="canvas_draw"></canvas>
+  </div>
+  <script nonce="${nonce}" src="${scriptUri}"></script>
+</body>
+</html>

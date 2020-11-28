@@ -1,8 +1,9 @@
 {
-	"name": "nifti-viewer",
+	"name": "neuro-viewer",
 	"displayName": "Nifti Viewer",
 	"description": "View your Nifti files within VSCode!",
 	"version": "0.0.1",
+	"publisher": "anibalsolon",
 	"engines": {
 		"vscode": "^1.46.0"
 	},
@@ -10,17 +11,17 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onCustomEditor:nifti-viewer.Nifti"
+		"onCustomEditor:neuro-viewer.Nifti"
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/anibalsolon/vscode-nifti-viewer.git"
+		"url": "https://github.com/anibalsolon/vscode-neuro-viewer.git"
 	},
 	"main": "./dist/extension.js",
 	"contributes": {
 		"customEditors": [
 			{
-				"viewType": "nifti-viewer.Nifti",
+				"viewType": "neuro-viewer.Nifti",
 				"displayName": "Nifti Viewer",
 				"selector": [
 					{
@@ -41,7 +42,7 @@
 	},
 	"devDependencies": {
 		"@types/node": "^12.19.7",
-		"@types/vscode": "^1.51.0",
+		"@types/vscode": "^1.46.0",
 		"@typescript-eslint/eslint-plugin": "^3.0.2",
 		"@typescript-eslint/parser": "^3.0.2",
 		"eslint": "^7.1.0",

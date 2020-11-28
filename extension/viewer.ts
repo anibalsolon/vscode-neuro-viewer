@@ -11,9 +11,6 @@ class NiftiDocument extends Disposable implements vscode.CustomDocument {
   static async create(
     uri: vscode.Uri,
   ): Promise<NiftiDocument> {
-
-    console.log("LOADINGGGGG")
-
     let buffer = Buffer.alloc(348); 
 
     let fp;
@@ -144,7 +141,7 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
       });
   }
 
-  private static readonly viewType = 'nifti-viewer.Nifti';
+  private static readonly viewType = 'neuro-viewer.Nifti';
 
   private readonly webviews = new WebviewCollection();
 

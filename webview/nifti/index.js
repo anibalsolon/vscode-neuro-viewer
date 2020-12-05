@@ -5,19 +5,19 @@ const vscode = acquireVsCodeApi();
 const data_types = {
    0: 'unknown',
    1: 'binary (1 bit/voxel)',
-   2: 'unsigned char (8 bits/voxel',
-   4: 'signed short (16 bits/voxel',
+   2: 'unsigned char (8 bits/voxel)',
+   4: 'signed short (16 bits/voxel)',
    8: 'signed int (32 bits/voxel)',
   16: 'float (32 bits/voxel)',
   32: 'complex (64 bits/voxel)',
   64: 'double (64 bits/voxel)',
  128: 'RGB triple (24 bits/voxel)',
- 255: 'not very useful (?)',
+ 255: 'unknown',
  256: 'signed char (8 bits)',
  512: 'unsigned short (16 bits)',
  768: 'unsigned int (32 bits)',
 1024: 'long long (64 bits)',
-1280: 'unsigned long long (64 bits',
+1280: 'unsigned long long (64 bits)',
 1536: 'long double (128 bits)',
 1792: 'double pair (128 bits)',
 2048: 'long double pair (256 bits)',
@@ -108,10 +108,10 @@ function drawBrainAt(params={}) {
   }
 
   const {
-    imageData, 
+    imageData,
     nifti,
     axis,
-    slice, 
+    slice,
     color,
   } = params
 
@@ -142,7 +142,7 @@ function drawBrainAt(params={}) {
   return imageData
 }
 
-function render() {
+function renderHeader() {
   const h = window.header;
   const dimdiv = document.getElementById('dimensions');
   dimdiv.innerHTML = `${h.nd}-D: [${h.dimensions.join(', ')}]`
@@ -160,14 +160,101 @@ function render() {
   data_type.innerHTML = `${h.data_type}`
 }
 
+function prepareRender(header, image) {
+
+  console.log('Preparing rendering for', image)
+
+  const arrayType = {
+    [NIFTI1.TYPE_UINT8]: Uint8Array,
+    [NIFTI1.TYPE_INT16]: Int16Array,
+    [NIFTI1.TYPE_INT32]: Int32Array,
+    [NIFTI1.TYPE_FLOAT32]: Float32Array,
+    [NIFTI1.TYPE_FLOAT64]: Float64Array,
+    [NIFTI1.TYPE_INT8]: Int8Array,
+    [NIFTI1.TYPE_UINT16]: Uint16Array,
+    [NIFTI1.TYPE_UINT32]: Uint32Array,
+  };
+
+  image = new arrayType[header.datatypeCode](image);
+
+  const underlay_wrapper = document.getElementById('canvas');
+  const underlay = document.getElementById('canvas_draw');
+  const underlayContext = underlay.getContext('2d');
+
+  let slice, axis = 1;
+
+  const drawImage = () => {
+    console.log('Rendering...');
+    underlayContext.clearRect(0, 0, underlay.width, underlay.height);
+    draw({
+      underlay: { header, image },
+    }, {
+      underlay: underlayContext
+    }, { axis, slice: { [axis]: slice }, color: colors.light });
+  }
+
+  function scroll(e) {
+    e.preventDefault();
+    slice += Math.sign(e.deltaY);
+
+    const { axis: size } = getRowsCols(header, axis);
+    if (slice < 0) {
+      slice = size + slice;
+    } else if (slice > size) {
+      slice = size - slice;
+    }
+    drawImage();
+  }
+
+  function resizeAndRender() {
+    const { cols, rows, axis: size } = getRowsCols(header, axis);
+
+    if (slice === undefined) {
+      slice = Math.round(size / 2);
+    }
+
+    const [width, height] = [underlay_wrapper.clientWidth, underlay_wrapper.clientHeight];
+    const imageWidth = cols
+    const imageHeight = rows
+
+    underlay.width = cols;
+    underlay.height = rows;
+    let [resizedWidth, resizedHeight] = [width, rows * width / imageWidth]
+    if (resizedHeight > height) {
+      resizedHeight = height
+      resizedWidth = cols * height / imageHeight
+    }
+
+    const css = {
+      width: Math.round(resizedWidth),
+      height: Math.round(resizedHeight),
+      top: Math.round(height / 2 -  resizedHeight / 2),
+      left: Math.round(width / 2 -  resizedWidth / 2),
+    }
+
+    underlay.style.width = `${css.width}px`;
+    underlay.style.height = `${css.height}px`;
+    underlay.style.top = `${css.top}px`;
+    underlay.style.left = `${css.left}px`;
+
+    drawImage();
+  }
+
+  underlay.addEventListener('wheel', scroll, false);
+  window.addEventListener('resize', resizeAndRender);
+  resizeAndRender();
+}
+
+window.ws = null;
 window.header = null;
 
 window.addEventListener('message', async e => {
   const { type, body, requestId } = e.data;
-  console.log(e);
   switch (type) {
     case 'init':
       {
+        window.ws = body.ws;
+        const uuid = body.uuid;
         const header = body.header;
         const geo = header.affine.map((l) => l.map((v) => dynFixed(-1 * v, 3)).join(',')).join(',');
         const ndims = header.dims[0];
@@ -179,7 +266,7 @@ window.addEventListener('message', async e => {
           `${header.qoffset_y > 0 ? 'A' : 'P'}` +
           `${header.qoffset_z > 0 ? 'S' : 'I'}`
         )
-        
+
         window.header = {
           geometry: `MATRIX(${geo}):${dims.slice(0, 3).join(',')}`,
           nd: ndims,
@@ -189,76 +276,16 @@ window.addEventListener('message', async e => {
           orientation,
         };
 
-        render();
+        renderHeader();
 
         document.getElementById('dimensions').addEventListener('click', function() {
+          console.log("loading data")
           vscode.postMessage({ type: 'data' });
         })
-      }
-      break;
 
-    case 'data':
-      {
-        let { header, image, extension } = body;
-        if (header.datatypeCode === NIFTI1.TYPE_UINT8) {
-          image = Uint8Array.from(image);
-        } else if (header.datatypeCode === NIFTI1.TYPE_INT16) {
-          image = Int16Array.from(image);
-        } else if (header.datatypeCode === NIFTI1.TYPE_INT32) {
-          image = Int32Array.from(image);
-        } else if (header.datatypeCode === NIFTI1.TYPE_FLOAT32) {
-          image = Float32Array.from(image);
-        } else if (header.datatypeCode === NIFTI1.TYPE_FLOAT64) {
-          image = Float64Array.from(image);
-        } else if (header.datatypeCode === NIFTI1.TYPE_INT8) {
-          image = Int8Array.from(image);
-        } else if (header.datatypeCode === NIFTI1.TYPE_UINT16) {
-          image = Uint16Array.from(image);
-        } else if (header.datatypeCode === NIFTI1.TYPE_UINT32) {
-          image = Uint32Array.from(image);
-        }
-
-        function resizeAndRender() {
-          const underlay_wrapper = document.getElementById('canvas');
-          const underlay = document.getElementById('canvas_draw');
-          const underlayContext = underlay.getContext('2d');
-          const axis = 1;
-          const slice = 20;
-  
-          const { cols, rows } = getRowsCols(header, axis)
-          const [width, height] = [underlay_wrapper.clientWidth, underlay_wrapper.clientHeight]
-          const imageWidth = cols
-          const imageHeight = rows
-  
-          underlay.width = cols;
-          underlay.height = rows;
-          let [resizedWidth, resizedHeight] = [width, rows * width / imageWidth]
-          if (resizedHeight > height) {
-            resizedHeight = height
-            resizedWidth = cols * height / imageHeight
-          }
-  
-          const css = {
-            width: Math.round(resizedWidth),
-            height: Math.round(resizedHeight),
-            top: Math.round(height / 2 -  resizedHeight / 2),
-            left: Math.round(width / 2 -  resizedWidth / 2),
-          }
-  
-          underlay.style.width = `${css.width}px`;
-          underlay.style.height = `${css.height}px`;
-          underlay.style.top = `${css.top}px`;
-          underlay.style.left = `${css.left}px`;
-  
-          draw({
-            underlay: { header, image },
-          }, {
-            underlay: underlayContext
-          }, { axis, slice: { [axis]: slice }, color: colors.light });
-        }
-
-        window.addEventListener('resize', resizeAndRender);
-        resizeAndRender();
+        fetch(`${window.ws}${uuid}`)
+          .then((res) => res.arrayBuffer())
+          .then((image) => prepareRender(header, image))
       }
       break;
   }

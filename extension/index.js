@@ -5,7 +5,6 @@ import { NiftiEditorProvider } from './viewer';
  * @param {vscode.ExtensionContext} context
  */
 export function activate(context) {
-  console.log("EEEEEI")
   context.subscriptions.push(NiftiEditorProvider.register(context));
 }
 

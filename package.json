@@ -55,6 +55,6 @@
 	},
 	"dependencies": {
 		"nifti-reader-js": "^0.5.4",
-		"uuid": "^8.3.1",
+		"uuid": "^8.3.1"
 	}
 }

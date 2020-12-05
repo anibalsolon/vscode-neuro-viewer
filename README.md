@@ -6,7 +6,7 @@ If you got here, you might be familiar with Nifti files. In any case,
 
 A quick way to view your Nifti files. It shows some metadata and renders a volume!
 
-![My brain in the viewer](./nifti-viewer.png)
+![My brain in the viewer](https://raw.githubusercontent.com/anibalsolon/vscode-neuro-viewer/main/nifti-viewer.png)
 
 ## Known Issues
 

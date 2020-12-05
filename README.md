@@ -6,9 +6,16 @@ If you got here, you might be familiar with Nifti files. In any case,
 
 A quick way to view your Nifti files. It shows some metadata and renders a volume!
 
+![My brain in the viewer](./nifti-viewer.png)
+
 ## Known Issues
 
-* Given how custom views work on VSCode, loading and parsing big Nifti file might not be quick. We aim to address it soon.
+* Some data preprocessing might be required to work at the moment:
+
+```
+data /= data.max()
+data *= 255
+```
 
 ## Release Notes
 

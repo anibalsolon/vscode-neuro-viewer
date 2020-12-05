@@ -31,13 +31,24 @@ function hexToRgb(hex) {
   } : null;
 }
 
-const colors = {
-  light: getComputedStyle(document.documentElement).getPropertyValue('--vscode-editor-foreground'),
-  dark: getComputedStyle(document.documentElement).getPropertyValue('--vscode-editor-background'),
-}
-
 function dynFixed(number, decimals) {
   return number.toFixed(decimals).replace(/^[\.0]+|[\.0]+$/g, '') || '0';
+}
+
+function message(msg) {
+  const el = document.getElementById('message');
+  if (!msg) {
+    el.style.display = 'none';
+  } else {
+    el.style.display = 'block';
+  }
+  el.innerHTML = msg;
+}
+
+const documentElement = getComputedStyle(document.documentElement);
+const colors = {
+  light: documentElement.getPropertyValue('--vscode-editor-foreground'),
+  dark: documentElement.getPropertyValue('--vscode-editor-background'),
 }
 
 const rowscols = {
@@ -159,11 +170,9 @@ function renderHeader() {
 }
 
 function prepareRender(header, image) {
-
-  console.log('Preparing rendering for', image)
+  message('Rendering');
 
   image = new Uint8Array(image);
-
 
   const underlay_wrapper = document.getElementById('canvas');
   const underlay = document.getElementById('canvas_draw');
@@ -172,7 +181,6 @@ function prepareRender(header, image) {
   let slice, axis = 1;
 
   const drawImage = () => {
-    console.log('Rendering...');
     underlayContext.clearRect(0, 0, underlay.width, underlay.height);
     draw({
       underlay: { header, image },
@@ -231,7 +239,9 @@ function prepareRender(header, image) {
 
   underlay.addEventListener('wheel', scroll, false);
   window.addEventListener('resize', resizeAndRender);
+
   resizeAndRender();
+  message();
 }
 
 window.ws = null;
@@ -267,10 +277,7 @@ window.addEventListener('message', async e => {
 
         renderHeader();
 
-        document.getElementById('dimensions').addEventListener('click', function() {
-          console.log("loading data")
-          vscode.postMessage({ type: 'data' });
-        })
+        message('Loading');
 
         fetch(`${window.ws}${uuid}`)
           .then((res) => res.arrayBuffer())

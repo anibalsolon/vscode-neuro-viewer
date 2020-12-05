@@ -2,7 +2,7 @@
 	"name": "neuro-viewer",
 	"displayName": "Neuro Viewer",
 	"description": "View your neuroimaging files in VSCode!",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"publisher": "anibalsolon",
 	"engines": {
 		"vscode": "^1.46.0"

@@ -12,15 +12,28 @@ A quick way to view your Nifti files. It shows some metadata and renders a volum
 ## Known Issues
 
 * Does not display other axis
-* Does not handle 4D data
-* Some data preprocessing might be required to work at the moment:
-
-```
-data /= data.max()
-data *= 255
-```
+* Need to add tests!
 
 ## Release Notes
+
+### 0.0.4
+
+Update release notes!
+Add loading message.
+
+### 0.0.3
+
+Code organizing;
+Preprocessing images on loading;
+Handling different pixel resolutions.
+
+### 0.0.2
+
+Some metadata updates.
+
+### 0.0.2
+
+Some metadata updates.
 
 ### 0.0.1
 

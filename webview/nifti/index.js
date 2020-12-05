@@ -1,17 +1,15 @@
-import { NIFTI1 } from 'nifti-reader-js';
-
 const vscode = acquireVsCodeApi();
 
 const data_types = {
    0: 'unknown',
-   1: 'binary (1 bit/voxel)',
-   2: 'unsigned char (8 bits/voxel)',
-   4: 'signed short (16 bits/voxel)',
-   8: 'signed int (32 bits/voxel)',
-  16: 'float (32 bits/voxel)',
-  32: 'complex (64 bits/voxel)',
-  64: 'double (64 bits/voxel)',
- 128: 'RGB triple (24 bits/voxel)',
+   1: 'binary (1 bit)',
+   2: 'unsigned char (8 bits)',
+   4: 'signed short (16 bits)',
+   8: 'signed int (32 bits)',
+  16: 'float (32 bits)',
+  32: 'complex (64 bits)',
+  64: 'double (64 bits)',
+ 128: 'RGB triple (24 bits)',
  255: 'unknown',
  256: 'signed char (8 bits)',
  512: 'unsigned short (16 bits)',
@@ -21,7 +19,7 @@ const data_types = {
 1536: 'long double (128 bits)',
 1792: 'double pair (128 bits)',
 2048: 'long double pair (256 bits)',
-2304: '4 byte RGBA (32 bits/voxel)',
+2304: '4 byte RGBA (32 bits)',
 }
 
 function hexToRgb(hex) {
@@ -164,18 +162,8 @@ function prepareRender(header, image) {
 
   console.log('Preparing rendering for', image)
 
-  const arrayType = {
-    [NIFTI1.TYPE_UINT8]: Uint8Array,
-    [NIFTI1.TYPE_INT16]: Int16Array,
-    [NIFTI1.TYPE_INT32]: Int32Array,
-    [NIFTI1.TYPE_FLOAT32]: Float32Array,
-    [NIFTI1.TYPE_FLOAT64]: Float64Array,
-    [NIFTI1.TYPE_INT8]: Int8Array,
-    [NIFTI1.TYPE_UINT16]: Uint16Array,
-    [NIFTI1.TYPE_UINT32]: Uint32Array,
-  };
+  image = new Uint8Array(image);
 
-  image = new arrayType[header.datatypeCode](image);
 
   const underlay_wrapper = document.getElementById('canvas');
   const underlay = document.getElementById('canvas_draw');
@@ -214,15 +202,16 @@ function prepareRender(header, image) {
     }
 
     const [width, height] = [underlay_wrapper.clientWidth, underlay_wrapper.clientHeight];
-    const imageWidth = cols
-    const imageHeight = rows
+    const voxels = header.pixDims;
+    const imageWidth =  cols * (voxels[rowscols[axis].cols] / voxels[rowscols[axis].rows]);
+    const imageHeight = rows * (voxels[rowscols[axis].rows] / voxels[rowscols[axis].cols]);
 
     underlay.width = cols;
     underlay.height = rows;
-    let [resizedWidth, resizedHeight] = [width, rows * width / imageWidth]
+    let [resizedWidth, resizedHeight] = [width, rows * width / imageWidth];
     if (resizedHeight > height) {
-      resizedHeight = height
-      resizedWidth = cols * height / imageHeight
+      resizedHeight = height;
+      resizedWidth = cols * height / imageHeight;
     }
 
     const css = {
@@ -230,7 +219,7 @@ function prepareRender(header, image) {
       height: Math.round(resizedHeight),
       top: Math.round(height / 2 -  resizedHeight / 2),
       left: Math.round(width / 2 -  resizedWidth / 2),
-    }
+    };
 
     underlay.style.width = `${css.width}px`;
     underlay.style.height = `${css.height}px`;

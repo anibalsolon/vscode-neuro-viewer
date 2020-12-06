@@ -7,7 +7,7 @@ This extension allows the user to visualize the volumetric data in Nifti files, 
 
 A quick way to view your Nifti files. It shows some metadata and renders a volume!
 
-![My brain in the viewer](https://raw.githubusercontent.com/anibalsolon/vscode-neuro-viewer/main/nifti-viewer.png)
+![My brain in the viewer](https://raw.githubusercontent.com/anibalsolon/vscode-neuro-viewer/main/neuro-viewer-screenshot.png)
 
 ## Known Issues
 
@@ -15,6 +15,10 @@ A quick way to view your Nifti files. It shows some metadata and renders a volum
 * Need to add tests!
 
 ## Release Notes
+
+### 0.0.5
+
+Icon and some metadata. Keep it pretty!
 
 ### 0.0.4
 

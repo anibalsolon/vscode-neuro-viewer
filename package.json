@@ -1,6 +1,6 @@
 {
 	"name": "neuro-viewer",
-	"displayName": "Neuro Viewer",
+	"displayName": "NeuroViewer",
 	"description": "View your neuroimaging files in VSCode!",
 	"version": "0.0.4",
 	"publisher": "anibalsolon",
@@ -8,15 +8,32 @@
 		"vscode": "^1.46.0"
 	},
 	"categories": [
+		"Visualization",
+		"Data Science",
 		"Other"
 	],
-	"activationEvents": [
-		"onCustomEditor:neuro-viewer.Nifti"
+	"keywords": [
+		"neuroimaging",
+		"neuroscience",
+		"MRI",
+		"Nifti"
 	],
+	"icon": "neuro-viewer.png",
+	"galleryBanner": {
+		"color": "#1e1e1e",
+		"theme": "dark"
+	  },
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/anibalsolon/vscode-neuro-viewer.git"
 	},
+	"bugs": {
+	  "url": "https://github.com/anibalsolon/vscode-neuro-viewer/issues",
+	  "email": "anibalsolon@gmail.com"
+	},
+	"activationEvents": [
+		"onCustomEditor:neuro-viewer.Nifti"
+	],
 	"main": "./dist/extension.js",
 	"contributes": {
 		"customEditors": [

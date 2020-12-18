@@ -113,7 +113,6 @@ canvas#canvas_draw {
     position: relative;
     flex-grow: 1;
     background: var(--vscode-menu-background);
-    border-bottom: 2em solid var(--vscode-menu-background);
 }
 
 #position {

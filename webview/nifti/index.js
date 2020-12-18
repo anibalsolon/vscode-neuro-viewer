@@ -314,9 +314,10 @@ function prepareRender(header, image) {
     thumbStepX = Math.max(1, Math.floor(cols / thumbRect.width));
     thumbStepY = Math.max(1, Math.floor(rows / thumbRect.height));
     const realWidth = Math.round(cols / thumbStepX);
+    const realHeight = Math.round(rows / thumbStepY);
 
     canvasThumbnail.width = realWidth;
-    canvasThumbnail.height = imageHeight;
+    canvasThumbnail.height = realHeight;
     canvasThumbnail.style.width = `${thumbRect.width}px`;
     canvasThumbnail.style.height = `${thumbRect.height}px`;
     thumbnail.style.width = `${thumbRect.width}px`;
@@ -325,8 +326,8 @@ function prepareRender(header, image) {
   range.addEventListener('mousemove', function(e) {
     const y = e.clientY - rangeRect.top;
     const ratio = y / rangeRect.height;
-    thumbnail.style.top = `${(ratio * 100) - (thumbRect.height / rangeRect.height * ratio * 2)}%`;
-    const thumbSlice = Math.round(size * ratio);
+    thumbnail.style.top = `${(ratio - (thumbRect.height / rangeRect.height * ratio)) * 100}%`;
+    const thumbSlice = Math.min(size, Math.max(0, Math.round(size * ratio)));
 
     draw({
       underlay: { header, image },
@@ -347,7 +348,12 @@ function prepareRender(header, image) {
     e.preventDefault();
     thumbnail.style.display = 'none';
     const y = e.clientY - rangeRect.top;
-    const ratio = y / rangeRect.height;
+    let ratio = y / rangeRect.height;
+    if (ratio > 1.0) {
+      ratio = 1.0;
+    } else if (ratio < 0.0) {
+      ratio = 1.0;
+    }
     slices[axis] = Math.round(size * ratio);
     updateSlicePosition(slices[axis], size);
     drawImage();

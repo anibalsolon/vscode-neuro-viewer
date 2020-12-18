@@ -41,14 +41,14 @@ function message(msg) {
     el.style.display = 'none';
   } else {
     el.style.display = 'block';
+    el.innerHTML = msg;
   }
-  el.innerHTML = msg;
 }
 
 const documentElement = getComputedStyle(document.documentElement);
 const colors = {
-  light: documentElement.getPropertyValue('--vscode-editor-foreground'),
-  dark: documentElement.getPropertyValue('--vscode-editor-background'),
+  light: hexToRgb(documentElement.getPropertyValue('--vscode-editor-foreground')),
+  dark: hexToRgb(documentElement.getPropertyValue('--vscode-editor-background')),
 }
 
 const rowscols = {
@@ -66,39 +66,61 @@ function getRowsCols(header, axis) {
 }
 
 function getAxesSteps(header, axis) {
-  const { cols, rows, axis: axes } = getRowsCols(header, 1)
-  switch (axis) {
-    case 1:
-      return {
-        rows_step: -cols * axes,
-        cols_step: axes,
-        axis_step: 1,
-      }
-    case 2:
-      return {
-        rows_step: axes,
-        cols_step: 1,
-        axis_step: cols * axes,
-      }
-    case 3:
-      return {
-        rows_step: -cols * axes,
-        cols_step: 1,
-        axis_step: axes,
-      }
+  const { cols, rows, axis: axes } = getRowsCols(header, 1);
+
+  const direction = {
+    1: header.qoffset_x > 0 ? 1 : -1,
+    2: header.qoffset_y > 0 ? 1 : -1,
+    3: header.qoffset_z > 0 ? 1 : -1,
+  }
+
+  const steps = {
+    1: 1,
+    2: axes,
+    3: cols * axes,
+  }
+
+  const rowscolsaxis = rowscols[axis];
+  return {
+    rows_step: steps[rowscolsaxis.rows] * direction[rowscolsaxis.rows],
+    cols_step: steps[rowscolsaxis.cols] * direction[rowscolsaxis.cols],
+    axis_step: steps[axis],
+  };
+}
+
+function updateAxisSelected(axis) {
+  const axes = document.getElementById('axes');
+  axis = `${axis}`;
+  for (const el of axes.children) {
+    const elAxis = el.getAttribute('data-axis');
+    if (elAxis == axis) {
+      el.setAttribute('data-selected', 'true');
+    } else {
+      el.removeAttribute('data-selected');
+    }
   }
 }
 
-function draw(images, canvas, { axis, slice, color='#FFFFFF' }) {
+function updateSlicePosition(slice, slices) {
+  document.getElementById('slice').innerHTML = slice + 1;
+  const el = document.getElementById('position');
+  const perc = ((slice / slices) * 100).toFixed(2);
+  el.style.top = `${perc}%`;
+}
+
+function draw(images, canvas, { axis, slices, color, stepX, stepY }) {
   const { cols, rows } = getRowsCols(images.underlay.header, axis)
   const { underlay } = images
-  slice = slice[axis]
 
+  const slice = slices[axis]
+  
   const underlayOptions = {
     nifti: underlay,
     axis,
     slice,
-    color: hexToRgb(color),
+    color,
+    stepX,
+    stepY,
   }
   const underlayData = drawBrainAt({
     imageData: canvas.underlay.createImageData(cols, rows),
@@ -116,31 +138,25 @@ function drawBrainAt(params={}) {
     ...params,
   }
 
-  const {
-    imageData,
-    nifti,
-    axis,
-    slice,
-    color,
-  } = params
-
-  let { cols_step, rows_step, axis_step } = getAxesSteps(nifti.header, axis)
-  let { cols, rows } = getRowsCols(nifti.header, axis)
+  const { imageData, nifti, axis, slice, color, stepX = 1, stepY = 1 } = params
+  let { cols_step, rows_step, axis_step } = getAxesSteps(nifti.header, axis);
+  let { cols, rows } = getRowsCols(nifti.header, axis);
 
   let row, col;
   let tz_offset, tzy_offset, tzyx_offset, image_offset;
 
-  var x_positive = cols_step > 0
-  var y_positive = rows_step > 0
-  cols_step = Math.abs(cols_step)
-  rows_step = Math.abs(rows_step)
+  let x_positive = cols_step > 0;
+  let y_positive = rows_step > 0;
+  cols_step = Math.abs(cols_step);
+  rows_step = Math.abs(rows_step);
 
   tz_offset = slice * axis_step
-  for (row = rows - 1; row >= 0; row--) {
-    tzy_offset = tz_offset + (y_positive ? row : rows - row - 1) * rows_step
-    for (col = 0; col < cols; col++) {
-      tzyx_offset = tzy_offset + (x_positive ? col : cols - col - 1) * cols_step;
+  for (row = 0; row < rows; row += 1) {
+    tzy_offset = tz_offset + (y_positive ? row * stepY : rows - row * stepY - 1) * rows_step;
+    for (col = 0; col < cols; col += 1) {
+      tzyx_offset = tzy_offset + (x_positive ? col * stepX : cols - col * stepX - 1) * cols_step;
       image_offset = (row * (cols * 4) + col * 4);
+
       let value = nifti.image[tzyx_offset];
       imageData.data[image_offset + 0] = color.r;
       imageData.data[image_offset + 1] = color.g;
@@ -174,42 +190,67 @@ function prepareRender(header, image) {
 
   image = new Uint8Array(image);
 
-  const underlay_wrapper = document.getElementById('canvas');
+  const underlayWrapper = document.getElementById('canvas');
   const underlay = document.getElementById('canvas_draw');
   const underlayContext = underlay.getContext('2d');
+  const axes = document.getElementById('axes');
+  const range = document.getElementById('range');
+  const thumbnail = document.getElementById('thumbnail');
+  const canvasThumbnail = document.getElementById('canvas_thumbnail');
+  const thumbnailContext = canvasThumbnail.getContext('2d');
 
-  let slice, axis = 1;
+  document.getElementById('position').style.display = 'block';
 
-  const drawImage = () => {
-    underlayContext.clearRect(0, 0, underlay.width, underlay.height);
+  let slices = {}, axis = 1;
+  let { cols, rows, axis: size } = getRowsCols(header, axis);
+
+  function updateAxisInfo(updatedAxis) {
+    axis = updatedAxis;
+    let { cols: updatedCols, rows: updatedRows, axis: updatedSize } = getRowsCols(header, axis);
+    cols = updatedCols;
+    rows = updatedRows;
+    size = updatedSize;
+  }
+
+  function drawImage() {
+    // underlayContext.clearRect(0, 0, underlay.width, underlay.height);
     draw({
       underlay: { header, image },
     }, {
       underlay: underlayContext
-    }, { axis, slice: { [axis]: slice }, color: colors.light });
+    }, { axis, slices, color: colors.light });
+  }
+
+  function changeAxis(e) {
+    const el = e.target;
+    let clickedAxis = el.getAttribute('data-axis');
+    if (clickedAxis) {
+      clickedAxis = parseInt(clickedAxis);
+      updateAxisInfo(clickedAxis, true);
+      resizeAndRender();
+    }
   }
 
   function scroll(e) {
-    e.preventDefault();
-    slice += Math.sign(e.deltaY);
-
-    const { axis: size } = getRowsCols(header, axis);
-    if (slice < 0) {
-      slice = size + slice;
-    } else if (slice > size) {
-      slice = size - slice;
+    slices[axis] += Math.sign(e.deltaY);
+    if (slices[axis] < 0) {
+      slices[axis] = size + slices[axis];
+    } else if (slices[axis] >= size) {
+      slices[axis] = size - slices[axis];
     }
+    updateSlicePosition(slices[axis], size);
     drawImage();
   }
 
   function resizeAndRender() {
-    const { cols, rows, axis: size } = getRowsCols(header, axis);
-
-    if (slice === undefined) {
-      slice = Math.round(size / 2);
+    if (slices[axis] === undefined) {
+      slices[axis] = Math.round(size / 2);
     }
 
-    const [width, height] = [underlay_wrapper.clientWidth, underlay_wrapper.clientHeight];
+    updateSlicePosition(slices[axis], size);
+    updateAxisSelected(axis);
+
+    const [width, height] = [underlayWrapper.clientWidth, underlayWrapper.clientHeight];
     const voxels = header.pixDims;
     const imageWidth =  cols * (voxels[rowscols[axis].cols] / voxels[rowscols[axis].rows]);
     const imageHeight = rows * (voxels[rowscols[axis].rows] / voxels[rowscols[axis].cols]);
@@ -237,12 +278,86 @@ function prepareRender(header, image) {
     drawImage();
   }
 
-  underlay.addEventListener('wheel', scroll, false);
+  const axesNames = [null, 'X', 'Y', 'Z'];
+  header.dims.map((d, o) => {
+    if (o == 0 || d <= 1) {
+      return;
+    }
+    var el = document.createElement('div');
+    el.innerHTML = axesNames[o];
+    el.setAttribute('data-axis', o);
+    el.addEventListener('click', changeAxis, false);
+    axes.appendChild(el);
+  })
+
+  window.addEventListener('wheel', scroll, false);
   window.addEventListener('resize', resizeAndRender);
+
+  const color = hexToRgb('#FFFFFF');
+  const rangeRect = range.getBoundingClientRect();
+  let thumbRect, thumbStepX, thumbStepY;
+
+  range.addEventListener('mouseover', function(e) {
+    thumbnail.style.display = 'block';
+    const y = e.clientY - rangeRect.top;
+    thumbnail.style.top = `${y / range.clientHeight * 100}%`;
+
+    thumbRect = canvasThumbnail.getBoundingClientRect();
+    thumbRect = { width: thumbRect.width, height: thumbRect.height };
+
+    const voxels = header.pixDims;
+    const imageWidth =  cols * (voxels[rowscols[axis].cols] / voxels[rowscols[axis].rows]);
+    const imageHeight = rows * (voxels[rowscols[axis].rows] / voxels[rowscols[axis].cols]);
+
+    let ratio = imageWidth / imageHeight;
+    thumbRect.width = thumbRect.height * ratio;
+    thumbStepX = Math.max(1, Math.floor(cols / thumbRect.width));
+    thumbStepY = Math.max(1, Math.floor(rows / thumbRect.height));
+    const realWidth = Math.round(cols / thumbStepX);
+
+    canvasThumbnail.width = realWidth;
+    canvasThumbnail.height = imageHeight;
+    canvasThumbnail.style.width = `${thumbRect.width}px`;
+    canvasThumbnail.style.height = `${thumbRect.height}px`;
+    thumbnail.style.width = `${thumbRect.width}px`;
+    thumbnail.style.height = `${thumbRect.height}px`;
+  });
+  range.addEventListener('mousemove', function(e) {
+    const y = e.clientY - rangeRect.top;
+    const ratio = y / rangeRect.height;
+    thumbnail.style.top = `${(ratio * 100) - (thumbRect.height / rangeRect.height * ratio * 2)}%`;
+    const thumbSlice = Math.round(size * ratio);
+
+    draw({
+      underlay: { header, image },
+    }, {
+      underlay: thumbnailContext
+    }, {
+      axis,
+      slices: { [axis]: thumbSlice },
+      stepX: thumbStepX,
+      stepY: thumbStepY,
+      color,
+    });
+  });
+  range.addEventListener('mouseout', function() {
+    thumbnail.style.display = 'none';
+  });
+  range.addEventListener('click', function(e) {
+    e.preventDefault();
+    thumbnail.style.display = 'none';
+    const y = e.clientY - rangeRect.top;
+    const ratio = y / rangeRect.height;
+    slices[axis] = Math.round(size * ratio);
+    updateSlicePosition(slices[axis], size);
+    drawImage();
+  });
 
   resizeAndRender();
   message();
 }
+
+
 
 window.ws = null;
 window.header = null;

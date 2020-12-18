@@ -1,5 +1,6 @@
 html, body {
     margin: 1em; padding: 0;
+    overflow: hidden;
 }
 
 body {
@@ -49,6 +50,10 @@ canvas {
     position: absolute;
 }
 
+canvas#canvas_draw {
+    margin-left: 3em;
+}
+
 #message {
     width: 100%;
     text-align: center;
@@ -62,4 +67,74 @@ canvas {
                  0px 2px 0 #000,
                  -2px 0px 0 #000,
                  0px -2px 0 #000;
+}
+
+#tools {
+    user-select: none;
+    z-index: 999;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3em;
+}
+
+#axes {
+    margin-bottom: 5px;
+}
+
+#axes > div {
+    text-align: center;
+    padding: 7px;
+    background: var(--vscode-menu-background);
+}
+#axes > div[data-selected] {
+    background: var(--vscode-activityBar-background);
+    font-weight: bold;
+}
+
+#slicer {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+#slice {
+    color: #FFF;
+    padding: 10px 0;
+    text-align: center;
+    font-weight: bold;
+    background: var(--vscode-activityBar-background);
+}
+
+#range {
+    position: relative;
+    flex-grow: 1;
+    background: var(--vscode-menu-background);
+    border-bottom: 2em solid var(--vscode-menu-background);
+}
+
+#position {
+    display: none;
+    position: absolute;
+    height: 2em;
+    background: #FFF;
+    left: 0;
+    right: 0;
+}
+
+#thumbnail {
+    display: none;
+    position: absolute;
+    left: 3.5em;
+    width: 5em;
+    height: 5em;
+    background: var(--vscode-menu-background);
+}
+
+#canvas_thumbnail {
+    height: 100%;
+    width: 100%;
 }

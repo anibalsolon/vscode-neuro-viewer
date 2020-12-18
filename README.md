@@ -9,36 +9,8 @@ A quick way to view your Nifti files. It shows some metadata and renders a volum
 
 ![My brain in the viewer](https://raw.githubusercontent.com/anibalsolon/vscode-neuro-viewer/main/neuro-viewer-screenshot.png)
 
+*(yes, that's my brain, so not worried on defacing it :)*
 ## Known Issues
 
 * Does not display other axis
 * Need to add tests!
-
-## Release Notes
-
-### 0.0.5
-
-Icon and some metadata. Keep it pretty!
-
-### 0.0.4
-
-Update release notes!
-Add loading message.
-
-### 0.0.3
-
-Code organizing;
-Preprocessing images on loading;
-Handling different pixel resolutions.
-
-### 0.0.2
-
-Some metadata updates.
-
-### 0.0.2
-
-Some metadata updates.
-
-### 0.0.1
-
-New extension on the block.

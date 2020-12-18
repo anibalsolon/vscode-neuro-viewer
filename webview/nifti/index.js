@@ -280,7 +280,7 @@ function prepareRender(header, image) {
 
   const axesNames = [null, 'X', 'Y', 'Z'];
   header.dims.map((d, o) => {
-    if (o == 0 || d <= 1) {
+    if (o == 0 || o > 3 || d <= 1) {
       return;
     }
     var el = document.createElement('div');

@@ -324,6 +324,7 @@ function prepareRender(header, image) {
     thumbnail.style.height = `${thumbRect.height}px`;
   });
   range.addEventListener('mousemove', function(e) {
+    // TODO center slider into position
     const y = e.clientY - rangeRect.top;
     const ratio = y / rangeRect.height;
     thumbnail.style.top = `${(ratio - (thumbRect.height / rangeRect.height * ratio)) * 100}%`;

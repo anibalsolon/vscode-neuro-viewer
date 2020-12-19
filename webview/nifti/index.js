@@ -1,38 +1,13 @@
 const vscode = acquireVsCodeApi();
 
-const data_types = {
-   0: 'unknown',
-   1: 'binary (1 bit)',
-   2: 'unsigned char (8 bits)',
-   4: 'signed short (16 bits)',
-   8: 'signed int (32 bits)',
-  16: 'float (32 bits)',
-  32: 'complex (64 bits)',
-  64: 'double (64 bits)',
- 128: 'RGB triple (24 bits)',
- 255: 'unknown',
- 256: 'signed char (8 bits)',
- 512: 'unsigned short (16 bits)',
- 768: 'unsigned int (32 bits)',
-1024: 'long long (64 bits)',
-1280: 'unsigned long long (64 bits)',
-1536: 'long double (128 bits)',
-1792: 'double pair (128 bits)',
-2048: 'long double pair (256 bits)',
-2304: '4 byte RGBA (32 bits)',
-}
+import { DATA_TYPES } from './constants';
+import { dynFixed, hexToRgb } from './utils';
+import { rowscols, drawBrainAt, getRowsCols } from './render';
 
-function hexToRgb(hex) {
-  var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : null;
-}
-
-function dynFixed(number, decimals) {
-  return number.toFixed(decimals).replace(/^[\.0]+|[\.0]+$/g, '') || '0';
+const documentElement = getComputedStyle(document.documentElement);
+const colors = {
+  light: hexToRgb(documentElement.getPropertyValue('--vscode-editor-foreground')),
+  dark: hexToRgb(documentElement.getPropertyValue('--vscode-editor-background')),
 }
 
 function message(msg) {
@@ -43,49 +18,6 @@ function message(msg) {
     el.style.display = 'block';
     el.innerHTML = msg;
   }
-}
-
-const documentElement = getComputedStyle(document.documentElement);
-const colors = {
-  light: hexToRgb(documentElement.getPropertyValue('--vscode-editor-foreground')),
-  dark: hexToRgb(documentElement.getPropertyValue('--vscode-editor-background')),
-}
-
-const rowscols = {
-  1: { cols: 2, rows: 3 },
-  2: { cols: 1, rows: 3 },
-  3: { cols: 1, rows: 2 }
-}
-
-function getRowsCols(header, axis) {
-  return {
-    rows: header.dims[rowscols[axis].rows],
-    cols: header.dims[rowscols[axis].cols],
-    axis: header.dims[axis],
-  }
-}
-
-function getAxesSteps(header, axis) {
-  const { cols, rows, axis: axes } = getRowsCols(header, 1);
-
-  const direction = {
-    1: header.qoffset_x > 0 ? 1 : -1,
-    2: header.qoffset_y > 0 ? 1 : -1,
-    3: header.qoffset_z > 0 ? 1 : -1,
-  }
-
-  const steps = {
-    1: 1,
-    2: axes,
-    3: cols * axes,
-  }
-
-  const rowscolsaxis = rowscols[axis];
-  return {
-    rows_step: steps[rowscolsaxis.rows] * direction[rowscolsaxis.rows],
-    cols_step: steps[rowscolsaxis.cols] * direction[rowscolsaxis.cols],
-    axis_step: steps[axis],
-  };
 }
 
 function updateAxisSelected(axis) {
@@ -130,41 +62,6 @@ function draw(images, canvas, { axis, slices, color, stepX, stepY }) {
     underlayData,
     0, 0
   )
-}
-
-function drawBrainAt(params={}) {
-  params = {
-    axis: 1,
-    ...params,
-  }
-
-  const { imageData, nifti, axis, slice, color, stepX = 1, stepY = 1 } = params
-  let { cols_step, rows_step, axis_step } = getAxesSteps(nifti.header, axis);
-  let { cols, rows } = getRowsCols(nifti.header, axis);
-
-  let row, col;
-  let tz_offset, tzy_offset, tzyx_offset, image_offset;
-
-  let x_positive = cols_step > 0;
-  let y_positive = rows_step > 0;
-  cols_step = Math.abs(cols_step);
-  rows_step = Math.abs(rows_step);
-
-  tz_offset = slice * axis_step
-  for (row = 0; row < rows; row += 1) {
-    tzy_offset = tz_offset + (y_positive ? row * stepY : rows - row * stepY - 1) * rows_step;
-    for (col = 0; col < cols; col += 1) {
-      tzyx_offset = tzy_offset + (x_positive ? col * stepX : cols - col * stepX - 1) * cols_step;
-      image_offset = (row * (cols * 4) + col * 4);
-
-      let value = nifti.image[tzyx_offset];
-      imageData.data[image_offset + 0] = color.r;
-      imageData.data[image_offset + 1] = color.g;
-      imageData.data[image_offset + 2] = color.b;
-      imageData.data[image_offset + 3] = value;
-    }
-  }
-  return imageData
 }
 
 function renderHeader() {
@@ -393,7 +290,7 @@ window.addEventListener('message', async e => {
           nd: ndims,
           dimensions: dims,
           pixel_sizes: pixdims,
-          data_type: data_types[header.datatypeCode],
+          data_type: DATA_TYPES[header.datatypeCode],
           orientation,
         };
 

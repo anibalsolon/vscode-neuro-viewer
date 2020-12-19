@@ -191,10 +191,11 @@ function prepareRender(header, image) {
   window.addEventListener('resize', resizeAndRender);
 
   const color = hexToRgb('#FFFFFF');
-  const rangeRect = range.getBoundingClientRect();
-  let thumbRect, thumbStepX, thumbStepY;
+  let rangeRect, thumbRect, thumbStepX, thumbStepY;
 
   range.addEventListener('mouseover', function(e) {
+    rangeRect = range.getBoundingClientRect();
+
     thumbnail.style.display = 'block';
     const y = e.clientY - rangeRect.top;
     thumbnail.style.top = `${y / range.clientHeight * 100}%`;
@@ -244,6 +245,7 @@ function prepareRender(header, image) {
   });
   range.addEventListener('click', function(e) {
     e.preventDefault();
+    rangeRect = range.getBoundingClientRect();
     thumbnail.style.display = 'none';
     const y = e.clientY - rangeRect.top;
     let ratio = y / rangeRect.height;

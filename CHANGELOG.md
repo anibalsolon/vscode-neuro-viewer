@@ -1,5 +1,9 @@
 # Change Log
 
+### [0.0.6]
+
+Add slice slider + thumbnail, axis selector, and reworking to allow different data orientations.
+
 ### [0.0.5]
 
 Icon and some metadata. Keep it pretty!

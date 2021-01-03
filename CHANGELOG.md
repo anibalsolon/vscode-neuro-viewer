@@ -1,5 +1,12 @@
 # Change Log
 
+### [0.0.7]
+
+Nifti loading overhaul- remove nifti-reader-js and use optimized and type-safe methods. Use streams to serve data, instead of loading the whole file in memory.
+Add volume to endpoint, allowing to future fMRI support.
+Add unit tests.
+Small UI fixes.
+
 ### [0.0.6]
 
 Add slice slider + thumbnail, axis selector, and reworking to allow different data orientations.

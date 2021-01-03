@@ -35,8 +35,16 @@ function updateAxisSelected(axis) {
 
 function updateSlicePosition(slice, slices) {
   document.getElementById('slice').innerHTML = slice + 1;
+  const range = document.getElementById('range');
   const el = document.getElementById('position');
-  const perc = ((slice / slices) * 100).toFixed(2);
+  if (range.clientHeigh === 0) {
+    return;
+  }
+  if (el.clientHeigh === 0) {
+    return;
+  }
+  const trueRange = ((range.clientHeight - el.clientHeight) * 100) / range.clientHeight;
+  const perc = ((slice / (slices - 1)) * trueRange).toFixed(2);
   el.style.top = `${perc}%`;
 }
 
@@ -92,11 +100,12 @@ function prepareRender(header, image) {
   const underlayContext = underlay.getContext('2d');
   const axes = document.getElementById('axes');
   const range = document.getElementById('range');
+  const position = document.getElementById('position');
   const thumbnail = document.getElementById('thumbnail');
   const canvasThumbnail = document.getElementById('canvas_thumbnail');
   const thumbnailContext = canvasThumbnail.getContext('2d');
 
-  document.getElementById('position').style.display = 'block';
+  position.style.display = 'block';
 
   let slices = {}, axis = 1;
   let { cols, rows, axis: size } = getRowsCols(header, axis);
@@ -203,7 +212,7 @@ function prepareRender(header, image) {
     thumbRect = canvasThumbnail.getBoundingClientRect();
     thumbRect = { width: thumbRect.width, height: thumbRect.height };
 
-    const voxels = header.pixDims;
+    const voxels = header.pixelSizes;
     const imageWidth =  cols * (voxels[rowscols[axis].cols] / voxels[rowscols[axis].rows]);
     const imageHeight = rows * (voxels[rowscols[axis].rows] / voxels[rowscols[axis].cols]);
 
@@ -226,7 +235,7 @@ function prepareRender(header, image) {
     const y = e.clientY - rangeRect.top;
     const ratio = y / rangeRect.height;
     thumbnail.style.top = `${(ratio - (thumbRect.height / rangeRect.height * ratio)) * 100}%`;
-    const thumbSlice = Math.min(size, Math.max(0, Math.round(size * ratio)));
+    const thumbSlice = Math.min(size, Math.max(1, Math.round(size * ratio))) - 1;
 
     draw({
       underlay: { header, image },
@@ -254,7 +263,7 @@ function prepareRender(header, image) {
     } else if (ratio < 0.0) {
       ratio = 1.0;
     }
-    slices[axis] = Math.round(size * ratio);
+    slices[axis] = Math.min(size, Math.round(size * ratio)) - 1;
     updateSlicePosition(slices[axis], size);
     drawImage();
   });
@@ -280,7 +289,7 @@ window.addEventListener('message', async e => {
         const geo = header.affine.map((l) => l.map((v) => dynFixed(-1 * v, 3)).join(',')).join(',');
         const ndims = header.dimensions[0];
         const dims = header.dimensions.slice(1, 1 + ndims);
-        const pixdims = header.pixelSizes.slice(1, 1 + ndims);
+        const pixelSizes = header.pixelSizes.slice(1, 1 + ndims);
 
         const orientation = dims < 3 ? '' : (
           `${header.qOffset.x > 0 ? 'R' : 'L'}` +
@@ -292,7 +301,7 @@ window.addEventListener('message', async e => {
           geometry: `MATRIX(${geo}):${dims.slice(0, 3).join(',')}`,
           nd: ndims,
           dimensions: dims,
-          pixel_sizes: pixdims,
+          pixel_sizes: pixelSizes,
           data_type: header.dataType,
           orientation,
         };

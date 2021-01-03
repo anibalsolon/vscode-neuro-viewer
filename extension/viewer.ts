@@ -37,11 +37,13 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
         openContext: { backupId?: string },
         _token: vscode.CancellationToken
     ): Promise<NiftiDocument> {
+        console.log(`Open document ${uri}`);
         const document: NiftiDocument = new NiftiDocument(uri);
+
         try {
-            await document.readHeader();
+            await document.metadata();
         } catch (error) {
-            console.log('Error here', error);
+            console.log('Error reading metadata', error);
             throw error;
         }
 
@@ -60,6 +62,7 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken
     ): Promise<void> {
+        const header = await document.metadata();
         this.webviews.add(document.uri, webviewPanel);
         webviewPanel.webview.options = {
             enableScripts: true,
@@ -71,7 +74,7 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
                     type: 'init',
                     body: {
                         ws: this._ws.uri?.toString(),
-                        header: document.header,
+                        header,
                         uuid: document.uuid,
                     }
                 });

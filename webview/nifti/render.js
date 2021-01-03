@@ -6,9 +6,9 @@ export const rowscols = {
 
 export function getRowsCols(header, axis) {
   return {
-    rows: header.dims[rowscols[axis].rows],
-    cols: header.dims[rowscols[axis].cols],
-    axis: header.dims[axis],
+    rows: header.dimensions[rowscols[axis].rows],
+    cols: header.dimensions[rowscols[axis].cols],
+    axis: header.dimensions[axis],
   }
 }
 
@@ -16,9 +16,9 @@ export function getAxesSteps(header, axis) {
   const { cols, rows, axis: axes } = getRowsCols(header, 1);
 
   const direction = {
-    1: header.qoffset_x > 0 ? 1 : -1,
-    2: header.qoffset_y > 0 ? 1 : -1,
-    3: header.qoffset_z > 0 ? 1 : -1,
+    1: header.qOffset.x > 0 ? 1 : -1,
+    2: header.qOffset.y > 0 ? 1 : -1,
+    3: header.qOffset.z > 0 ? 1 : -1,
   }
 
   const steps = {

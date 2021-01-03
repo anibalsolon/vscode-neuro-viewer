@@ -35,10 +35,15 @@ export class FileServer {
                     return;
                 }
 
-                const data = await this._documents[url].readData();
-
+                const data = await this._documents[url].data(0, 1);
                 res.writeHead(200);
-                res.end(data);
+                data.pipe(res, { end: false });
+                await new Promise<void>((resolve, reject) => {
+                    data.once('end', function() {
+                        res.end();
+                        resolve();
+                    });
+                });
             } else {
                 res.writeHead(404);
                 res.end();

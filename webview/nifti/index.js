@@ -148,7 +148,7 @@ function prepareRender(header, image) {
     updateAxisSelected(axis);
 
     const [width, height] = [underlayWrapper.clientWidth, underlayWrapper.clientHeight];
-    const voxels = header.pixDims;
+    const voxels = header.pixelSizes;
     const imageWidth =  cols * (voxels[rowscols[axis].cols] / voxels[rowscols[axis].rows]);
     const imageHeight = rows * (voxels[rowscols[axis].rows] / voxels[rowscols[axis].cols]);
 
@@ -176,7 +176,7 @@ function prepareRender(header, image) {
   }
 
   const axesNames = [null, 'X', 'Y', 'Z'];
-  header.dims.map((d, o) => {
+  header.dimensions.map((d, o) => {
     if (o == 0 || o > 3 || d <= 1) {
       return;
     }
@@ -276,15 +276,16 @@ window.addEventListener('message', async e => {
         window.ws = body.ws;
         const uuid = body.uuid;
         const header = body.header;
+
         const geo = header.affine.map((l) => l.map((v) => dynFixed(-1 * v, 3)).join(',')).join(',');
-        const ndims = header.dims[0];
-        const dims = header.dims.slice(1, 1 + ndims);
-        const pixdims = header.pixDims.slice(1, 1 + ndims);
+        const ndims = header.dimensions[0];
+        const dims = header.dimensions.slice(1, 1 + ndims);
+        const pixdims = header.pixelSizes.slice(1, 1 + ndims);
 
         const orientation = dims < 3 ? '' : (
-          `${header.qoffset_x > 0 ? 'R' : 'L'}` +
-          `${header.qoffset_y > 0 ? 'A' : 'P'}` +
-          `${header.qoffset_z > 0 ? 'S' : 'I'}`
+          `${header.qOffset.x > 0 ? 'R' : 'L'}` +
+          `${header.qOffset.y > 0 ? 'A' : 'P'}` +
+          `${header.qOffset.z > 0 ? 'S' : 'I'}`
         )
 
         window.header = {
@@ -292,7 +293,7 @@ window.addEventListener('message', async e => {
           nd: ndims,
           dimensions: dims,
           pixel_sizes: pixdims,
-          data_type: DATA_TYPES[header.datatypeCode],
+          data_type: header.dataType,
           orientation,
         };
 

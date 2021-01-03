@@ -22,6 +22,24 @@
 				"--extensionDevelopmentPath=${workspaceFolder}",
 				"--extensionTestsPath=${workspaceFolder}/test/suite/index"
 			]
-		}
+		},
+		{
+			"name": "Unit Tests",
+			"type": "pwa-node",
+			"request": "launch",
+			"program": "${workspaceFolder}/node_modules/mocha/bin/_mocha",
+			"stopOnEntry": false,
+			"sourceMaps": true,
+			"args": [
+				"./test/unit/**/*.test.js",
+				"--recursive",
+				"-r",
+				"ts-node/register",
+			],
+			"resolveSourceMapLocations": [
+				"${workspaceFolder}/**",
+				"!**/node_modules/**"
+			],
+		},
 	]
 }

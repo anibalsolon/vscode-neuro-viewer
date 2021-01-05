@@ -264,7 +264,13 @@ function prepareRender(header, image) {
 
   resizeAndRender();
   prepareHistogram(header, image, function() {
-    drawImage();
+    if (histogramSelections.image) {
+      draw(
+        { header, image: histogramSelections.image },
+        histogramContext,
+        { axis, slices, color: colors.highlight }
+      );
+    }
   });
 
   message();

@@ -4,7 +4,13 @@ export const selections = {
 
 export function renderHistogram(header, image) {
   const histogram = document.getElementById('histogram_bins');
-  let count = [...Array(256).keys()].map(i => image.filter(v => v === i).length).slice(1);
+  let count = Array(256);
+  for (const v of image) {
+    count[v] = (count[v] || 0) + 1;
+  }
+  count = [...Array(256).keys()].map((i) => count[i] || 0);
+  count = count.slice(1);
+
   const max = Math.max.apply(null, count);
   count = count.map((c) => c / max);
   let html = ``;
@@ -28,35 +34,28 @@ export function prepareHistogram(header, image, callback) {
   function move(e) {
     const y = e.clientY - rect.top;
     end = y / rect.height;
+
     const from = Math.max(0, end > start ? start : end);
     const to = Math.min(1, end < start ? start : end);
-    updateRange(from, to);
-    return [from, to];
+
+    const startBin = Math.round(from * 255);
+    let endBin = Math.round(to * 255);
+    if (startBin === endBin) {
+      endBin = startBin + 1;
+    }
+    if (start < end) {
+      [start, end] = [startBin / 255, endBin / 255];
+      updateRange(start, end);
+    } else {
+      [start, end] = [endBin / 255, startBin / 255];
+      updateRange(end, start);
+    }
+
+    render(startBin, endBin);
+    callback();
   }
-  histogram_selections.addEventListener('mousedown', function(e) {
-    rect = histogram_selections.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    start = y / rect.height;
-    document.addEventListener('mousemove', move);
-    clicked = true;
-  });
-  document.addEventListener('mouseup', function(e) {
-    document.removeEventListener('mousemove', move);
-    
-    if (!clicked) {
-      return;
-    }
-    clicked = false;
 
-    let [start, end] = move(e);
-    start = Math.round(start * 255);
-    end = Math.round(end * 255);
-
-    if (start === end) {
-      end = start + 1;
-    }
-    updateRange(start / 255, end / 255);
-
+  function render(start, end) {
     if (selections.image === null) {
       selections.image = Uint8Array.from(image);
     }
@@ -73,8 +72,21 @@ export function prepareHistogram(header, image, callback) {
 
       selections.image[i] = rangeDiff * (image[i] - start) / selectionDiff + rangeStart;
     }
+  }
 
-    callback();
+  histogram_selections.addEventListener('mousedown', function(e) {
+    rect = histogram_selections.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    start = y / rect.height;
+    document.addEventListener('mousemove', move);
+    clicked = true;
+  });
+  document.addEventListener('mouseup', function(e) {
+    document.removeEventListener('mousemove', move);
+    if (!clicked)
+      return;
+    clicked = false;
+    move(e);
   });
 
   renderHistogram(header, image);

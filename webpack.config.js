@@ -43,7 +43,7 @@ const extension = {
   ...general,
   target: 'node',
   entry: {
-    extension: './extension/index.js',
+    extension: './extension/index.ts',
   },
   output: {
     ...general.output,

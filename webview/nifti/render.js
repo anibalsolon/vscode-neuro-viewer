@@ -4,6 +4,29 @@ export const rowscols = {
   3: { cols: 1, rows: 2 }
 }
 
+export function draw(image, canvas, { axis, slices, color, stepX, stepY }) {
+  const { cols, rows } = getRowsCols(image.header, axis)
+
+  const slice = slices[axis]
+  
+  const underlayOptions = {
+    nifti: image,
+    axis,
+    slice,
+    color,
+    stepX,
+    stepY,
+  }
+  const underlayData = drawBrainAt({
+    imageData: canvas.createImageData(cols, rows),
+    ...underlayOptions,
+  })
+  canvas.putImageData(
+    underlayData,
+    0, 0
+  )
+}
+
 export function getRowsCols(header, axis) {
   return {
     rows: header.dimensions[rowscols[axis].rows],

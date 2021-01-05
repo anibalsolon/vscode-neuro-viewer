@@ -2,12 +2,14 @@ const vscode = acquireVsCodeApi();
 
 import { DATA_TYPES } from './constants';
 import { dynFixed, hexToRgb } from './utils';
-import { rowscols, drawBrainAt, getRowsCols } from './render';
+import { rowscols, draw, getRowsCols } from './render';
+import { prepareHistogram, selections as histogramSelections } from './histogram';
 
 const documentElement = getComputedStyle(document.documentElement);
 const colors = {
   light: hexToRgb(documentElement.getPropertyValue('--vscode-editor-foreground')),
   dark: hexToRgb(documentElement.getPropertyValue('--vscode-editor-background')),
+  highlight: hexToRgb(documentElement.getPropertyValue('--vscode-minimap-findMatchHighlight')),
 }
 
 function message(msg) {
@@ -15,7 +17,7 @@ function message(msg) {
   if (!msg) {
     el.style.display = 'none';
   } else {
-    el.style.display = 'block';
+    el.style.display = null;
     el.innerHTML = msg;
   }
 }
@@ -48,30 +50,6 @@ function updateSlicePosition(slice, slices) {
   el.style.top = `${perc}%`;
 }
 
-function draw(images, canvas, { axis, slices, color, stepX, stepY }) {
-  const { cols, rows } = getRowsCols(images.underlay.header, axis)
-  const { underlay } = images
-
-  const slice = slices[axis]
-  
-  const underlayOptions = {
-    nifti: underlay,
-    axis,
-    slice,
-    color,
-    stepX,
-    stepY,
-  }
-  const underlayData = drawBrainAt({
-    imageData: canvas.underlay.createImageData(cols, rows),
-    ...underlayOptions,
-  })
-  canvas.underlay.putImageData(
-    underlayData,
-    0, 0
-  )
-}
-
 function renderHeader() {
   const h = window.header;
   const dimdiv = document.getElementById('dimensions');
@@ -95,9 +73,13 @@ function prepareRender(header, image) {
 
   image = new Uint8Array(image);
 
-  const underlayWrapper = document.getElementById('canvas');
+  const canvasWrapper = document.getElementById('canvas_wrapper');
   const underlay = document.getElementById('canvas_draw');
   const underlayContext = underlay.getContext('2d');
+
+  const histogram = document.getElementById('canvas_histogram');
+  const histogramContext = histogram.getContext('2d');
+
   const axes = document.getElementById('axes');
   const range = document.getElementById('range');
   const position = document.getElementById('position');
@@ -120,11 +102,18 @@ function prepareRender(header, image) {
 
   function drawImage() {
     // underlayContext.clearRect(0, 0, underlay.width, underlay.height);
-    draw({
-      underlay: { header, image },
-    }, {
-      underlay: underlayContext
-    }, { axis, slices, color: colors.light });
+    draw(
+      { header, image },
+      underlayContext,
+      { axis, slices, color: colors.light }
+    );
+    if (histogramSelections.image) {
+      draw(
+        { header, image: histogramSelections.image },
+        histogramContext,
+        { axis, slices, color: colors.highlight }
+      );
+    }
   }
 
   function changeAxis(e) {
@@ -149,6 +138,11 @@ function prepareRender(header, image) {
   }
 
   function resizeAndRender() {
+    if (canvasWrapper.clientWidth === 0) {
+      setTimeout(resizeAndRender, 200);
+      return;
+    }
+
     if (slices[axis] === undefined) {
       slices[axis] = Math.round(size / 2);
     }
@@ -156,13 +150,13 @@ function prepareRender(header, image) {
     updateSlicePosition(slices[axis], size);
     updateAxisSelected(axis);
 
-    const [width, height] = [underlayWrapper.clientWidth, underlayWrapper.clientHeight];
+    const [width, height] = [canvasWrapper.clientWidth, canvasWrapper.clientHeight];
     const voxels = header.pixelSizes;
     const imageWidth =  cols * (voxels[rowscols[axis].cols] / voxels[rowscols[axis].rows]);
     const imageHeight = rows * (voxels[rowscols[axis].rows] / voxels[rowscols[axis].cols]);
 
-    underlay.width = cols;
-    underlay.height = rows;
+    histogram.width = underlay.width = cols;
+    histogram.height = underlay.height = rows;
     let [resizedWidth, resizedHeight] = [width, rows * width / imageWidth];
     if (resizedHeight > height) {
       resizedHeight = height;
@@ -176,10 +170,10 @@ function prepareRender(header, image) {
       left: Math.round(width / 2 -  resizedWidth / 2),
     };
 
-    underlay.style.width = `${css.width}px`;
-    underlay.style.height = `${css.height}px`;
-    underlay.style.top = `${css.top}px`;
-    underlay.style.left = `${css.left}px`;
+    histogram.style.width = underlay.style.width = `${css.width}px`;
+    histogram.style.height = underlay.style.height = `${css.height}px`;
+    histogram.style.top = underlay.style.top = `${css.top}px`;
+    histogram.style.left = underlay.style.left = `${css.left}px`;
 
     drawImage();
   }
@@ -237,17 +231,17 @@ function prepareRender(header, image) {
     thumbnail.style.top = `${(ratio - (thumbRect.height / rangeRect.height * ratio)) * 100}%`;
     const thumbSlice = Math.min(size, Math.max(1, Math.round(size * ratio))) - 1;
 
-    draw({
-      underlay: { header, image },
-    }, {
-      underlay: thumbnailContext
-    }, {
-      axis,
-      slices: { [axis]: thumbSlice },
-      stepX: thumbStepX,
-      stepY: thumbStepY,
-      color,
-    });
+    draw(
+      { header, image },
+      thumbnailContext,
+      {
+        axis,
+        slices: { [axis]: thumbSlice },
+        stepX: thumbStepX,
+        stepY: thumbStepY,
+        color,
+      }
+    );
   });
   range.addEventListener('mouseout', function() {
     thumbnail.style.display = 'none';
@@ -269,10 +263,12 @@ function prepareRender(header, image) {
   });
 
   resizeAndRender();
+  prepareHistogram(header, image, function() {
+    drawImage();
+  });
+
   message();
 }
-
-
 
 window.ws = null;
 window.header = null;

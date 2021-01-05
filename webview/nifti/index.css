@@ -41,8 +41,8 @@ th {
     margin-top: 1em;
     flex-grow: 1;
     display: flex;
-    align-items: center;
     position: relative;
+    align-items: stretch;
 }
 
 canvas {
@@ -50,11 +50,19 @@ canvas {
     position: absolute;
 }
 
-canvas#canvas_draw {
+#canvas_wrapper {
+    flex-grow: 1;
+}
+
+canvas#canvas_draw, canvas#canvas_histogram {
     margin-left: 3em;
+    margin-right: 5em;
 }
 
 #message {
+    position: absolute;
+    top: 0;
+    bottom: 0;
     width: 100%;
     text-align: center;
     font-size: 1.4em;
@@ -67,17 +75,16 @@ canvas#canvas_draw {
                  0px 2px 0 #000,
                  -2px 0px 0 #000,
                  0px -2px 0 #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #tools {
     user-select: none;
     z-index: 999;
-    position: absolute;
     display: flex;
     flex-direction: column;
-    left: 0;
-    top: 0;
-    bottom: 0;
     width: 3em;
 }
 
@@ -136,4 +143,37 @@ canvas#canvas_draw {
 #canvas_thumbnail {
     height: 100%;
     width: 100%;
+}
+
+#histogram {
+    width: 5em;
+    background: var(--vscode-minimapSlider-background);
+    position: relative;
+}
+#histogram_bins {
+    position: absolute;
+    top: 0.4em;
+    bottom: 0.4em;
+    left: 0.4em;
+    right: 0.4em;
+}
+#histogram_bins div {
+    background: var(--vscode-minimap-selectionHighlight);
+    height: calc(100% / 256);
+    float: right;
+    clear: both;
+}
+#histogram_selections {
+    position: absolute;
+    top: 0.4em;
+    bottom: 0.4em;
+    left: 0.4em;
+    right: 0.4em;
+}
+#histogram_selections div {
+    background: var(--vscode-minimap-findMatchHighlight);
+    opacity: 0.7;
+    position: absolute;
+    left: 0;
+    right: 0;
 }

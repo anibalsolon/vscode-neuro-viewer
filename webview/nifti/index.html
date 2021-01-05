@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} blob:; style-src ${webview.cspSource}; script-src 'nonce-${nonce}'; connect-src http://localhost:*;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src ${webview.cspSource} blob:; style-src 'unsafe-inline' ${webview.cspSource}; script-src 'nonce-${nonce}'; connect-src http://localhost:*;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nifti Viewer</title>
   <link href="${styleUri}" rel="stylesheet">
@@ -51,7 +51,14 @@
         </div>
       </div>
     </div>
-    <canvas id="canvas_draw"></canvas>
+    <div id="canvas_wrapper">
+      <canvas id="canvas_draw"></canvas>
+      <canvas id="canvas_histogram"></canvas>
+    </div>
+    <div id="histogram">
+      <div id="histogram_bins"></div>
+      <div id="histogram_selections"></div>
+    </div>
   </div>
   <script nonce="${nonce}" src="${scriptUri}"></script>
 </body>

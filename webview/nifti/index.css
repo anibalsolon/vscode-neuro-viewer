@@ -159,7 +159,7 @@ canvas#canvas_draw, canvas#canvas_histogram {
 }
 #histogram_bins div {
     background: var(--vscode-minimap-selectionHighlight);
-    height: calc(100% / 256);
+    height: calc(100% / 255);
     float: right;
     clear: both;
 }

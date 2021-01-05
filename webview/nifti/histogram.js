@@ -38,20 +38,19 @@ export function prepareHistogram(header, image, callback) {
     const from = Math.max(0, end > start ? start : end);
     const to = Math.min(1, end < start ? start : end);
 
-    const startBin = Math.round(from * 255);
+    let startBin = Math.round(from * 255);
     let endBin = Math.round(to * 255);
-    if (startBin === endBin) {
-      endBin = startBin + 1;
-    }
+    endBin = startBin + 1;
+    render(startBin, endBin - 1);
+
     if (start < end) {
-      [start, end] = [startBin / 255, endBin / 255];
-      updateRange(start, end);
+      [startBin, endBin] = [startBin / 255, endBin / 255];
+      updateRange(startBin, endBin);
     } else {
-      [start, end] = [endBin / 255, startBin / 255];
-      updateRange(end, start);
+      [startBin, endBin] = [endBin / 255, startBin / 255];
+      updateRange(startBin, endBin);
     }
 
-    render(startBin, endBin);
     callback();
   }
 
@@ -59,6 +58,7 @@ export function prepareHistogram(header, image, callback) {
     if (selections.image === null) {
       selections.image = Uint8Array.from(image);
     }
+    selections.image = selections.image.fill(0);
 
     const rangeStart = 100, rangeEnd = 255;
     const rangeDiff = rangeEnd - rangeStart;
@@ -66,7 +66,11 @@ export function prepareHistogram(header, image, callback) {
 
     for (let i = 0; i < selections.image.length; i++) {
       if (image[i] < start || image[i] > end) {
-        selections.image[i] = 0;
+        continue
+      }
+
+      if (selectionDiff === 0) {
+        selections.image[i] = 255;
         continue
       }
 

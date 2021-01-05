@@ -173,8 +173,9 @@ export class Bufferize extends Transform {
         super({ objectMode: true });
     }
 
-    _transform(chunk: [number], encoding: string, callback: TransformCallback) {
-        this.push(Buffer.from(chunk));
+    _transform(chunk: number[], encoding: string, callback: TransformCallback) {
+        const rounded: number[] = chunk.map((v) => Math.round(v));
+        this.push(Buffer.from(rounded));
         callback();
     };
 }

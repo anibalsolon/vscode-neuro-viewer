@@ -9,8 +9,7 @@ A quick way to view your Nifti files. It shows some metadata and renders a volum
 
 ![My brain in the viewer](https://raw.githubusercontent.com/anibalsolon/vscode-neuro-viewer/main/neuro-viewer-screenshot.png)
 
-*(yes, that's my brain, so not worried on defacing it :)*
+*(yes, that's my head, so not worried on defacing it :)*
 ## Known Issues
 
-* Does not display other axis
-* Need to add tests!
+* It just renders the first volume of a fMRI.

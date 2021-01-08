@@ -1,5 +1,9 @@
 # Change Log
 
+### [0.0.8]
+
+No change, just house cleaning.
+
 ### [0.0.7]
 
 Nifti loading overhaul- remove nifti-reader-js and use optimized and type-safe methods. Use streams to serve data, instead of loading the whole file in memory.

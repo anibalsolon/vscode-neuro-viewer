@@ -13,3 +13,4 @@ tsconfig.json
 data
 extension
 webview
+*.ipynb

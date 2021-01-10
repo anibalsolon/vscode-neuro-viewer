@@ -5,7 +5,7 @@ const nifti = require('../../extension/formats/nifti');
 const util = require('../../extension/util');
 
 describe('Caster', () => {
-    it('Must parse Nifti data', async () => {
+    it('must parse Nifti data', async () => {
         const fd = fs.openSync('test/data/custom.nii');
         const nii = new nifti.Nifti1(fd);
         const header = await nii.header()

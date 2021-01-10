@@ -3,7 +3,7 @@ const assert = require('assert');
 
 const util = require('../../extension/util');
 
-describe('Slicer', () => {
+describe('Stepper', () => {
     it('should step data', async () => {
         const step = 3;
         const slicer = new util.Stepper(step);
@@ -20,5 +20,22 @@ describe('Slicer', () => {
             res += chunk.toString('ascii');
         }
         assert(res === 'abcdefghijklmnopqrstuvwx', res);
+    });
+    it('should fail on build', async () => {
+        try {
+            const slicer = new util.Stepper(-1);
+        } catch (error) {
+            assert(error.message === 'Invalid step');
+        }
+        try {
+            const slicer = new util.Stepper(0);
+        } catch (error) {
+            assert(error.message === 'Invalid step');
+        }
+        try {
+            const slicer = new util.Stepper(0.1);
+        } catch (error) {
+            assert(error.message === 'Invalid step');
+        }
     });
 });

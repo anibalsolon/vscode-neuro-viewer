@@ -3,7 +3,7 @@ import * as fs from 'fs';
 import * as vscode from 'vscode';
 import { v4 } from 'uuid';
 import { Disposable } from './dispose';
-import { round, Normalizer, Bufferize } from './util';
+import { round, Normalizer, Bufferizer } from './util';
 import { Nifti, NiftiFactory } from './formats/nifti';
 
 export class NiftiDocument extends Disposable implements vscode.CustomDocument {
@@ -36,7 +36,7 @@ export class NiftiDocument extends Disposable implements vscode.CustomDocument {
         }
         const { values: { min, max } } = await this._doc.header();
         const stream = await this._doc.values(offset, length);
-        return stream.pipe(new Normalizer(min, max, 0, 255, true)).pipe(new Bufferize());
+        return stream.pipe(new Normalizer(min, max, 0, 255, true)).pipe(new Bufferizer());
     }
 
     private readonly _onDidDispose = this._register(new vscode.EventEmitter<void>());

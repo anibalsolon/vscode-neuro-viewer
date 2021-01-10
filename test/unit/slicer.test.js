@@ -3,7 +3,7 @@ const assert = require('assert');
 
 const util = require('../../extension/util');
 
-describe('Stepper', () => {
+describe('Slicer', () => {
     it('should slice data', async () => {
         const slicer = new util.Slicer(3, 10);
         slicer.write(Buffer.from('abcde'));
@@ -33,5 +33,20 @@ describe('Stepper', () => {
             res += chunk.toString('ascii');
         }
         assert(res === 'fghijklmnopqrstuvwxyz')
+    });
+    it('should slice data, skipping some chunks', async () => {
+        const slicer = new util.Slicer(11, 10);
+        slicer.write(Buffer.from('abcde'));
+        slicer.write(Buffer.from('fghij'));
+        slicer.write(Buffer.from('klmno'));
+        slicer.write(Buffer.from('pqrst'));
+        slicer.write(Buffer.from('uvwxy'));
+        slicer.write(Buffer.from('z'));
+        slicer.end();
+        let res = '';
+        for await (const chunk of slicer) {
+            res += chunk.toString('ascii');
+        }
+        assert(res === 'lmnopqrstu', res)
     });
 });

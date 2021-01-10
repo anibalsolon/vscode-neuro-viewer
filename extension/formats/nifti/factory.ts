@@ -4,9 +4,8 @@ import { Nifti2 } from './nifti2';
 
 export class NiftiFactory {
     static async build(fd: number): Promise<Nifti> {
-        const v: number | undefined = await Nifti.version(fd);
+        const v: 1 | 2 = await Nifti.version(fd);
         switch (v) {
-            default:
             case 1:
                 return new Nifti1(fd);
             case 2:

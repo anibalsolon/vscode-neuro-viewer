@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import { Readable } from 'stream';
 import * as zlib from 'zlib';
 import { Slicer, Stepper, Caster, createReadableStream, awaitReadableStream, isGzipped } from '../../util';
@@ -36,7 +35,6 @@ type NiftiDataTypeNumber = NiftiDataType.NONE | NiftiDataType.BINARY |
 type NiftiDataTypeBigInt = NiftiDataType.INT64 | NiftiDataType.UINT64;
 
 export namespace NiftiDataType {
-
     export function from(code: number): NiftiDataType {
         const dataTypeMapping: { [s: number]: NiftiDataType } = {
             0: NiftiDataType.NONE,
@@ -155,8 +153,8 @@ export abstract class Nifti {
             case NiftiDataType.UINT64: return endianness === 'BE' ? buffer.readBigInt64BE(offset) : buffer.readBigInt64LE(offset);
             case NiftiDataType.INT8: return buffer.readInt8(offset);
             case NiftiDataType.UINT8: return buffer.readUInt8(offset);
-            default: return buffer.readUInt8(offset);
         }
+        throw Error('Invalid data type');
     }
 
     read(buffer: Buffer, type: NiftiDataTypeNumber, offset: number): number;
@@ -229,7 +227,7 @@ export abstract class Nifti {
             }
         }
 
-        if (min === max) {
+        if (min === max && min === 0) {
             const values = await this.values();
             let vmin = Number.MAX_VALUE;
             let vmax = Number.MIN_VALUE;
@@ -255,7 +253,11 @@ export abstract class Nifti {
         const volumeSize = dimensions[1] * dimensions[2] * dimensions[3] * (dataBits / 8);
 
         const offset = dataOffset + volumeSize * volumeOffset;
-        const stream = await this.readStream(offset, volumes ? offset + volumeSize * volumes : undefined, readingStep);
+        const stream = await this.readStream(
+            offset,
+            volumes !== undefined ? volumeSize * volumes : undefined,
+            readingStep
+        );
         return stream;
     }
 
@@ -267,12 +269,16 @@ export abstract class Nifti {
         }));
     }
 
-    static async version(fd: number) {
+    static async version(fd: number): Promise<1 | 2> {
         const N1_MAGIC_NUMBER_LOCATION = 344;
         const N1_MAGIC_NUMBER = [0x6E, 0x2B, 0x31];
 
         const stream = await Nifti.readStream(fd, 0, Nifti.HEADER_SIZE);
         let buffer = <Buffer> stream.read(Nifti.HEADER_SIZE);
+
+        if (buffer === null) {
+            throw Error('Invalid file format');
+        }
 
         if (
             (Nifti.read(buffer, NiftiDataType.UINT8, N1_MAGIC_NUMBER_LOCATION, 'LE') === N1_MAGIC_NUMBER[0]) &&
@@ -292,5 +298,7 @@ export abstract class Nifti {
         ) {
             return 2;
         }
+        
+        throw Error('Invalid file format');
     }
 }

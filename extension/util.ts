@@ -82,6 +82,7 @@ export class Slicer extends Transform {
 
     _transform(chunk: any, encoding: string, callback: TransformCallback) {
         if (this._passedThrough + chunk.length < this._offset) {
+            this._passedThrough += chunk.length;
             callback();
             return;
         }
@@ -148,7 +149,7 @@ export class Normalizer extends Transform {
         this._oldmin = oldmin;
         this._oldmax = oldmax;
         if (abs) {
-            this._oldmin = Math.min(0, Math.abs(oldmin));
+            this._oldmin = Math.abs(oldmin);
             this._olddiff = Math.abs(this._oldmax - this._oldmin);
         } else {
             this._olddiff = this._oldmax - this._oldmin;
@@ -168,14 +169,15 @@ export class Normalizer extends Transform {
         callback();
     };
 }
-export class Bufferize extends Transform {
+
+export class Bufferizer extends Transform {
     constructor() {
         super({ objectMode: true });
     }
 
     _transform(chunk: number[], encoding: string, callback: TransformCallback) {
-        const rounded: number[] = chunk.map((v) => Math.round(v));
-        this.push(Buffer.from(rounded));
+        // const rounded: number[] = chunk.map((v) => Math.round(v));
+        this.push(Buffer.from(chunk));
         callback();
     };
 }

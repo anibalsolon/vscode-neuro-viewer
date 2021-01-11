@@ -1,4 +1,7 @@
-# neuro-viewer
+# NeuroViewer
+
+<!-- (https://raw.githubusercontent.com/anibalsolon/vscode-neuro-viewer/main/neuro-viewer.png) -->
+<!-- https://mattermost.brainhack.org/brainhack/channels/vscode-neuro-viewer -->
 
 If you got here, you might be familiar with Nifti files. In any case, Nifti is a file format for neuroimaging.
 This extension allows the user to visualize the volumetric data in Nifti files, and more features are coming!

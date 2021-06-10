@@ -51,11 +51,11 @@
 			}
 		]
 	},
-    "capabilities": {
-        "untrustedWorkspaces": {
-            "supported": true
-        }
-    },
+	"capabilities": {
+		"untrustedWorkspaces": {
+			"supported": true
+		}
+	},
 	"scripts": {
 		"vscode:prepublish": "webpack --mode production",
 		"webpack": "webpack --mode development",

@@ -168,16 +168,18 @@ canvas {
 }
 #histogram_bins {
     position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
     top: 0.4em;
     bottom: 0.4em;
     left: 0.4em;
     right: 0.4em;
+    padding: 0.2em;
 }
 #histogram_bins div {
     background: var(--vscode-minimap-selectionHighlight);
-    height: calc(100% / 255);
-    float: right;
-    clear: both;
+    flex-grow: 1;
 }
 #histogram_selections {
     position: absolute;

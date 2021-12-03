@@ -7,7 +7,7 @@ import { prepareHistogram, selections as histogramSelections } from './histogram
 const documentElement = getComputedStyle(document.documentElement);
 
 const palettes = {
-  'bwr': paletteRange({ [-1]: hexToRgb('#0000FFFF'), [0]: hexToRgb('#FFFFFFFF'), [1]: hexToRgb('#FF0000FF') }, 32767)
+  'bwr': paletteRange({ [-1]: hexToRgb('#0000FFFF'), [0]: hexToRgb('#FFFFFFFF'), [1]: hexToRgb('#FF0000FF') })
 }
 
 const colors = {
@@ -288,15 +288,18 @@ function prepareRender(header, image) {
   });
 
   resizeAndRender();
-  prepareHistogram(header, image, function() {
-    if (histogramSelections.image) {
-      draw(
-        { header, image: histogramSelections.image },
-        histogramContext,
-        { axis, slices, colors }
-      );
+  prepareHistogram(
+    { header, image }, 101, { colors },
+    function() {
+      if (histogramSelections.image) {
+        draw(
+          { header, image: histogramSelections.image },
+          histogramContext,
+          { axis, slices, colors }
+        );
+      }
     }
-  });
+  );
 
   message();
 }

@@ -1,3 +1,5 @@
+export const DATA_TYPE_RANGE = 32767;
+
 export const DATA_TYPES = {
     0: 'unknown',
     1: 'binary (1 bit)',

@@ -1,27 +1,55 @@
+import { DATA_TYPE_RANGE } from './constants';
+import { scale, lerp, rgbToHex } from './utils';
+
 export const selections = {
   image: null
 };
 
-export function renderHistogram(header, image) {
+export function renderHistogram({ header, image }, bins, { colors }) {
   const histogram = document.getElementById('histogram_bins');
-  let count = Array(32767);
+  const valueToBin = {};
+  const valueToBinColor = {};
+  let bin, prevBin = 0, prevBinValue = -DATA_TYPE_RANGE;
+  for (let i = -DATA_TYPE_RANGE; i <= DATA_TYPE_RANGE; i++) {
+    bin = scale(i, [-DATA_TYPE_RANGE, DATA_TYPE_RANGE], [0, bins - 1]);
+    valueToBin[i] = bin;
+    if (bin !== prevBin) {
+      valueToBinColor[prevBin] = lerp(
+        colors.scale[prevBinValue],
+        colors.scale[i],
+        i / DATA_TYPE_RANGE
+      );
+      prevBin = bin;
+      prevBinValue = i;
+    }
+  }
+  valueToBinColor[bin] = lerp(
+    colors.scale[prevBinValue],
+    colors.scale[DATA_TYPE_RANGE],
+    1.0
+  );
+
+  let count = Array(bins).fill(0);
   for (const v of image) {
-    count[v] = (count[v] || 0) + 1;
+    count[valueToBin[v]] = (count[valueToBin[v]] || 0) + 1;
   }
   count = [...count.keys()].map((i) => count[i] || 0);
-  count = count.slice(1);
+  const zeroed = count[valueToBin[0]] || 0;
+  count[valueToBin[0]] = 0;
 
   const max = Math.max.apply(null, count);
   count = count.map((c) => c / max);
-  let html = ``;
-  count.map((v, i) => {
-    html += `<div style="width: ${v * 100}%"></div>`
+  count[valueToBin[0]] = Math.min(zeroed / max, 1);
+  
+  let html = '';
+  count.forEach((v, i) => {
+    html += `<div data-bin="${bins-i-1}" style="width: ${v * 100}%; background: ${rgbToHex(valueToBinColor[bins-i-1])}"></div>`
   });
   histogram.innerHTML = html;
+  histogram.style.backgroundColor = rgbToHex(colors.scale[0]);
 }
 
-export function prepareHistogram(header, image, callback) {
-  const histogram = document.getElementById('histogram_bins');
+export function prepareHistogram({ header, image }, bins, { colors }, callback) {
   const histogram_selections = document.getElementById('histogram_selections');
 
   function updateRange(from, to) {
@@ -93,5 +121,5 @@ export function prepareHistogram(header, image, callback) {
     move(e);
   });
 
-  renderHistogram(header, image);
+  renderHistogram({ header, image }, bins, { colors });
 }

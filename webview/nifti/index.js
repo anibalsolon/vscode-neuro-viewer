@@ -1,12 +1,17 @@
 const vscode = acquireVsCodeApi();
 
-import { DATA_TYPES } from './constants';
-import { dynFixed, hexToRgb } from './utils';
+import { dynFixed, hexToRgb, rgbToHex, paletteRange } from './utils';
 import { rowscols, draw, getRowsCols } from './render';
 import { prepareHistogram, selections as histogramSelections } from './histogram';
 
 const documentElement = getComputedStyle(document.documentElement);
+
+const palettes = {
+  'bwr': paletteRange({ [-1]: hexToRgb('#0000FFFF'), [0]: hexToRgb('#FFFFFFFF'), [1]: hexToRgb('#FF0000FF') }, 32767)
+}
+
 const colors = {
+  scale: palettes['bwr'],
   light: hexToRgb(documentElement.getPropertyValue('--vscode-editor-foreground')),
   dark: hexToRgb(documentElement.getPropertyValue('--vscode-editor-background')),
   highlight: hexToRgb(documentElement.getPropertyValue('--vscode-minimap-findMatchHighlight')),
@@ -53,25 +58,28 @@ function updateSlicePosition(slice, slices) {
 function renderHeader() {
   const h = window.header;
   const dimdiv = document.getElementById('dimensions');
-  dimdiv.innerHTML = `${h.nd}-D: [${h.dimensions.join(', ')}]`
+  dimdiv.innerHTML = `${h.nd}-D: [${h.dimensions.join(', ')}]`;
 
   const pixelsizes = document.getElementById('pixel_sizes');
-  pixelsizes.innerHTML = `${h.pixel_sizes.map((s, i) => `${s}${i < 3 ? 'mm' : (i == 3 && h.dimensions[3] > 1 ? 's' : '')}`).join(', ')}`
+  pixelsizes.innerHTML = h.pixel_sizes.map(
+    (s, i) =>
+      `${s}${i < 3 ? 'mm' : (i == 3 && h.dimensions[3] > 1 ? 's' : '')}`
+  ).join(', ');
 
   const geometry = document.getElementById('geometry');
   geometry.innerHTML = `${h.geometry}`
 
   const orientation = document.getElementById('orientation');
-  orientation.innerHTML = `${h.orientation}`
+  orientation.innerHTML = `${h.orientation}`;
 
   const data_type = document.getElementById('data_type');
-  data_type.innerHTML = `${h.data_type}`
+  data_type.innerHTML = `${h.data_type}`;
 }
 
 function prepareRender(header, image) {
   message('Rendering');
 
-  image = new Uint8Array(image);
+  image = new Int16Array(image);
 
   const canvasWrapper = document.getElementById('canvas_wrapper');
   const underlay = document.getElementById('canvas_draw');
@@ -105,13 +113,13 @@ function prepareRender(header, image) {
     draw(
       { header, image },
       underlayContext,
-      { axis, slices, color: colors.light }
+      { axis, slices, colors },
     );
     if (histogramSelections.image) {
       draw(
         { header, image: histogramSelections.image },
         histogramContext,
-        { axis, slices, color: colors.highlight }
+        { axis, slices, colors }
       );
     }
   }
@@ -151,6 +159,7 @@ function prepareRender(header, image) {
     updateAxisSelected(axis);
 
     const [width, height] = [canvasWrapper.clientWidth, canvasWrapper.clientHeight];
+
     const voxels = header.pixelSizes;
     const imageWidth =  cols * (voxels[rowscols[axis].cols] / voxels[rowscols[axis].rows]);
     const imageHeight = rows * (voxels[rowscols[axis].rows] / voxels[rowscols[axis].cols]);
@@ -170,6 +179,7 @@ function prepareRender(header, image) {
       left: Math.round(width / 2 -  resizedWidth / 2),
     };
 
+    canvasWrapper.style.backgroundColor = rgbToHex(colors.scale[0]);
     histogram.style.width = underlay.style.width = `${css.width}px`;
     histogram.style.height = underlay.style.height = `${css.height}px`;
     histogram.style.top = underlay.style.top = `${css.top}px`;
@@ -193,43 +203,22 @@ function prepareRender(header, image) {
   window.addEventListener('wheel', scroll, false);
   window.addEventListener('resize', resizeAndRender);
 
-  const color = hexToRgb('#FFFFFF');
-  let rangeRect, thumbRect, thumbStepX, thumbStepY;
+  let rangeRect, thumbRectOrig, thumbRect, thumbSlice, thumbStepX, thumbStepY;
+  thumbRectOrig = thumbnail.getBoundingClientRect();
 
-  range.addEventListener('mouseover', function(e) {
-    rangeRect = range.getBoundingClientRect();
-
-    thumbnail.style.display = 'block';
-    const y = e.clientY - rangeRect.top;
-    thumbnail.style.top = `${y / range.clientHeight * 100}%`;
-
-    thumbRect = canvasThumbnail.getBoundingClientRect();
-    thumbRect = { width: thumbRect.width, height: thumbRect.height };
-
-    const voxels = header.pixelSizes;
-    const imageWidth =  cols * (voxels[rowscols[axis].cols] / voxels[rowscols[axis].rows]);
-    const imageHeight = rows * (voxels[rowscols[axis].rows] / voxels[rowscols[axis].cols]);
-
-    let ratio = imageWidth / imageHeight;
-    thumbRect.width = thumbRect.height * ratio;
-    thumbStepX = Math.max(1, Math.floor(cols / thumbRect.width));
-    thumbStepY = Math.max(1, Math.floor(rows / thumbRect.height));
-    const realWidth = Math.round(cols / thumbStepX);
-    const realHeight = Math.round(rows / thumbStepY);
-
-    canvasThumbnail.width = realWidth;
-    canvasThumbnail.height = realHeight;
-    canvasThumbnail.style.width = `${thumbRect.width}px`;
-    canvasThumbnail.style.height = `${thumbRect.height}px`;
-    thumbnail.style.width = `${thumbRect.width}px`;
-    thumbnail.style.height = `${thumbRect.height}px`;
-  });
-  range.addEventListener('mousemove', function(e) {
-    // TODO center slider into position
+  function fetchRatioAndSliceFromRange(e) {
     const y = e.clientY - rangeRect.top;
     const ratio = y / rangeRect.height;
+    const slice = Math.min(size, Math.max(1, Math.round(size * ratio))) - 1;
+    return { slice, ratio };
+  }
+
+  function renderFromRange(e) {
+    e.preventDefault();
+
+    const { slice, ratio } = fetchRatioAndSliceFromRange(e);
     thumbnail.style.top = `${(ratio - (thumbRect.height / rangeRect.height * ratio)) * 100}%`;
-    const thumbSlice = Math.min(size, Math.max(1, Math.round(size * ratio))) - 1;
+    thumbSlice = slice;
 
     draw(
       { header, image },
@@ -239,27 +228,63 @@ function prepareRender(header, image) {
         slices: { [axis]: thumbSlice },
         stepX: thumbStepX,
         stepY: thumbStepY,
-        color,
+        colors,
       }
     );
+  }
+
+  range.addEventListener('mouseover', function(e) {
+    rangeRect = range.getBoundingClientRect();
+
+    thumbnail.style.display = 'block';
+    const y = e.clientY - rangeRect.top;
+    thumbnail.style.top = `${y / range.clientHeight * 100}%`;
+
+    if (thumbRectOrig.width == 0 || thumbRectOrig.height == 0) {
+      thumbRectOrig = canvasThumbnail.getBoundingClientRect();
+    }
+    thumbRect = { width: thumbRectOrig.width, height: thumbRectOrig.height };
+
+    const voxels = header.pixelSizes;
+    const imageWidth = cols * (voxels[rowscols[axis].cols] / voxels[rowscols[axis].rows]);
+    const imageHeight = rows * (voxels[rowscols[axis].rows] / voxels[rowscols[axis].cols]);
+
+    let [resizedWidth, resizedHeight] = [thumbRect.width, rows * thumbRect.width / imageWidth];
+    if (resizedHeight > thumbRect.height) {
+      resizedHeight = thumbRect.height;
+      resizedWidth = cols * thumbRect.height / imageHeight;
+    }
+
+    const css = {
+      width: Math.floor(resizedWidth),
+      height: Math.floor(resizedHeight),
+    };
+
+    thumbStepX = Math.max(1, Math.floor(cols / css.width));
+    thumbStepY = Math.max(1, Math.floor(rows / css.height));
+
+    thumbnail.style.width = `${css.width}px`;
+    thumbnail.style.height = `${css.height}px`;
+    canvasThumbnail.style.width = `${css.width}px`;
+    canvasThumbnail.style.height = `${css.height}px`;
+    canvasThumbnail.width = Math.floor(cols / thumbStepX);
+    canvasThumbnail.height = Math.floor(rows / thumbStepY);
+
+    renderFromRange(e);
   });
-  range.addEventListener('mouseout', function() {
+  range.addEventListener('mousemove', renderFromRange);
+  range.addEventListener('mouseout', function(e) {
+    e.preventDefault();
     thumbnail.style.display = 'none';
   });
   range.addEventListener('click', function(e) {
     e.preventDefault();
-    rangeRect = range.getBoundingClientRect();
-    thumbnail.style.display = 'none';
-    const y = e.clientY - rangeRect.top;
-    let ratio = y / rangeRect.height;
-    if (ratio > 1.0) {
-      ratio = 1.0;
-    } else if (ratio < 0.0) {
-      ratio = 1.0;
-    }
-    slices[axis] = Math.min(size, Math.round(size * ratio)) - 1;
+    const { slice } = fetchRatioAndSliceFromRange(e);
+    slices[axis] = slice;
     updateSlicePosition(slices[axis], size);
     drawImage();
+
+    renderFromRange(e);
   });
 
   resizeAndRender();
@@ -268,7 +293,7 @@ function prepareRender(header, image) {
       draw(
         { header, image: histogramSelections.image },
         histogramContext,
-        { axis, slices, color: colors.highlight }
+        { axis, slices, colors }
       );
     }
   });

@@ -4,11 +4,11 @@ export const selections = {
 
 export function renderHistogram(header, image) {
   const histogram = document.getElementById('histogram_bins');
-  let count = Array(256);
+  let count = Array(32767);
   for (const v of image) {
     count[v] = (count[v] || 0) + 1;
   }
-  count = [...Array(256).keys()].map((i) => count[i] || 0);
+  count = [...count.keys()].map((i) => count[i] || 0);
   count = count.slice(1);
 
   const max = Math.max.apply(null, count);
@@ -56,7 +56,7 @@ export function prepareHistogram(header, image, callback) {
 
   function render(start, end) {
     if (selections.image === null) {
-      selections.image = Uint8Array.from(image);
+      selections.image = Int16Array.from(image);
     }
     selections.image = selections.image.fill(0);
 

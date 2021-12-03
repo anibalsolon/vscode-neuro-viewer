@@ -4,7 +4,7 @@ export const rowscols = {
   3: { cols: 1, rows: 2 }
 }
 
-export function draw(image, canvas, { axis, slices, color, stepX, stepY }) {
+export function draw(image, canvas, { axis, slices, colors, stepX, stepY }) {
   const { cols, rows } = getRowsCols(image.header, axis)
 
   const slice = slices[axis]
@@ -13,10 +13,11 @@ export function draw(image, canvas, { axis, slices, color, stepX, stepY }) {
     nifti: image,
     axis,
     slice,
-    color,
+    colors,
     stepX,
     stepY,
   }
+
   const underlayData = drawBrainAt({
     imageData: canvas.createImageData(cols, rows),
     ...underlayOptions,
@@ -64,7 +65,8 @@ export function drawBrainAt(params={}) {
     ...params,
   }
 
-  const { imageData, nifti, axis, slice, color, stepX = 1, stepY = 1 } = params
+  const { imageData, nifti, axis, slice, colors, stepX = 1, stepY = 1 } = params
+
   let { cols_step, rows_step, axis_step } = getAxesSteps(nifti.header, axis);
   let { cols, rows } = getRowsCols(nifti.header, axis);
 
@@ -83,11 +85,12 @@ export function drawBrainAt(params={}) {
       tzyx_offset = tzy_offset + (x_positive ? col * stepX : cols - col * stepX - 1) * cols_step;
       image_offset = (row * (cols * 4) + col * 4);
 
-      let value = nifti.image[tzyx_offset];
-      imageData.data[image_offset + 0] = color.r;
-      imageData.data[image_offset + 1] = color.g;
-      imageData.data[image_offset + 2] = color.b;
-      imageData.data[image_offset + 3] = value;
+      const value = nifti.image[tzyx_offset];
+      const c = colors.scale[value];
+      imageData.data[image_offset + 0] = c.r;
+      imageData.data[image_offset + 1] = c.g;
+      imageData.data[image_offset + 2] = c.b;
+      imageData.data[image_offset + 3] = c.a;
     }
   }
   return imageData

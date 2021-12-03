@@ -52,11 +52,7 @@ canvas {
 
 #canvas_wrapper {
     flex-grow: 1;
-}
-
-canvas#canvas_draw, canvas#canvas_histogram {
-    margin-left: 3em;
-    margin-right: 5em;
+    position: relative;
 }
 
 #message {
@@ -86,6 +82,7 @@ canvas#canvas_draw, canvas#canvas_histogram {
     display: flex;
     flex-direction: column;
     width: 3em;
+    margin-right: 0.3em;
 }
 
 #axes {
@@ -106,6 +103,7 @@ canvas#canvas_draw, canvas#canvas_histogram {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
+    background: var(--vscode-menu-background);
 }
 
 #slice {
@@ -119,16 +117,32 @@ canvas#canvas_draw, canvas#canvas_histogram {
 #range {
     position: relative;
     flex-grow: 1;
-    background: var(--vscode-menu-background);
+    margin: 0.5em 0;
 }
 
 #position {
     display: none;
     position: absolute;
     height: 2em;
-    background: #FFF;
+    background: var(--vscode-activityBar-background);
     left: 0;
     right: 0;
+    margin-left: 0.5em;
+    margin-right: 1.25em;
+}
+#position:before {
+	left: 100%;
+	top: 50%;
+	border: solid transparent;
+	content: "";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+	border-color: rgba(0, 0, 0, 0);
+	border-left-color: var(--vscode-activityBar-background);
+    border-width: 1em;
+    margin-top: -1em;
 }
 
 #thumbnail {
@@ -143,11 +157,13 @@ canvas#canvas_draw, canvas#canvas_histogram {
 #canvas_thumbnail {
     height: 100%;
     width: 100%;
+    border: 1px solid var(--vscode-menu-background);
 }
 
 #histogram {
     width: 5em;
-    background: var(--vscode-minimapSlider-background);
+    margin-left: 0.3em;
+    background: var(--vscode-menu-background);
     position: relative;
 }
 #histogram_bins {

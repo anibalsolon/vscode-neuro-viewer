@@ -1,3 +1,5 @@
+import { DATA_TYPE_RANGE } from './constants';
+
 export function hexToRgb(hex) {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(hex);
   let alpha = 255;
@@ -34,7 +36,7 @@ export function lerp(c1, c2, ratio) {
   }
 }
 
-export function paletteRange(colors, n) {
+export function paletteRange(colors, n=DATA_TYPE_RANGE) {
   const indexes = Object.keys(colors).map(k => parseInt(k)).sort((a, b) => a - b);
   const map = {};
   let c = 1;
@@ -51,4 +53,10 @@ export function paletteRange(colors, n) {
 
 export function dynFixed(number, decimals) {
   return number.toFixed(decimals).replace(/^[\.0]+|[\.0]+$/g, '') || '0';
+}
+
+export function scale(value, from, to) {
+  var scale = (to[1] - to[0]) / (from[1] - from[0]);
+  var capped = Math.min(from[1], Math.max(from[0], value)) - from[0];
+  return ~~(capped * scale + to[0]);
 }

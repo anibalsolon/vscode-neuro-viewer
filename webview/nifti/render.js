@@ -2,30 +2,24 @@ export const rowscols = {
   1: { cols: 2, rows: 3 },
   2: { cols: 1, rows: 3 },
   3: { cols: 1, rows: 2 }
-}
+};
 
 export function draw(image, canvas, { axis, slices, colors, stepX, stepY }) {
-  const { cols, rows } = getRowsCols(image.header, axis)
-
-  const slice = slices[axis]
-  
-  const underlayOptions = {
+  const { cols, rows } = getRowsCols(image.header, axis);
+  const slice = slices[axis];
+  const underlayData = drawBrainAt({
+    imageData: canvas.createImageData(cols, rows),
     nifti: image,
     axis,
     slice,
     colors,
     stepX,
     stepY,
-  }
-
-  const underlayData = drawBrainAt({
-    imageData: canvas.createImageData(cols, rows),
-    ...underlayOptions,
-  })
+  });
   canvas.putImageData(
     underlayData,
     0, 0
-  )
+  );
 }
 
 export function getRowsCols(header, axis) {
@@ -33,7 +27,7 @@ export function getRowsCols(header, axis) {
     rows: header.dimensions[rowscols[axis].rows],
     cols: header.dimensions[rowscols[axis].cols],
     axis: header.dimensions[axis],
-  }
+  };
 }
 
 export function getAxesSteps(header, axis) {
@@ -43,13 +37,13 @@ export function getAxesSteps(header, axis) {
     1: header.qOffset.x > 0 ? 1 : -1,
     2: header.qOffset.y > 0 ? 1 : -1,
     3: header.qOffset.z > 0 ? 1 : -1,
-  }
+  };
 
   const steps = {
     1: 1,
     2: axes,
     3: cols * axes,
-  }
+  };
 
   const rowscolsaxis = rowscols[axis];
   return {
@@ -63,9 +57,9 @@ export function drawBrainAt(params={}) {
   params = {
     axis: 1,
     ...params,
-  }
+  };
 
-  const { imageData, nifti, axis, slice, colors, stepX = 1, stepY = 1 } = params
+  const { imageData, nifti, axis, slice, colors, stepX = 1, stepY = 1 } = params;
 
   let { cols_step, rows_step, axis_step } = getAxesSteps(nifti.header, axis);
   let { cols, rows } = getRowsCols(nifti.header, axis);
@@ -78,7 +72,7 @@ export function drawBrainAt(params={}) {
   cols_step = Math.abs(cols_step);
   rows_step = Math.abs(rows_step);
 
-  tz_offset = slice * axis_step
+  tz_offset = slice * axis_step;
   for (row = 0; row < rows; row += 1) {
     tzy_offset = tz_offset + (y_positive ? row * stepY : rows - row * stepY - 1) * rows_step;
     for (col = 0; col < cols; col += 1) {
@@ -93,5 +87,5 @@ export function drawBrainAt(params={}) {
       imageData.data[image_offset + 3] = c.a;
     }
   }
-  return imageData
+  return imageData;
 }

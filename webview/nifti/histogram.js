@@ -33,7 +33,6 @@ export function renderHistogram({ header, image }, bins, { colors }) {
   for (const v of image) {
     count[valueToBin[v]] = (count[valueToBin[v]] || 0) + 1;
   }
-  count = [...count.keys()].map((i) => count[i] || 0);
   const zeroed = count[valueToBin[0]] || 0;
   count[valueToBin[0]] = 0;
 
@@ -42,14 +41,19 @@ export function renderHistogram({ header, image }, bins, { colors }) {
   count[valueToBin[0]] = Math.min(zeroed / max, 1);
   
   let html = '';
-  count.forEach((v, i) => {
-    html += `<div data-bin="${bins-i-1}" style="width: ${v * 100}%; background: ${rgbToHex(valueToBinColor[bins-i-1])}"></div>`
+  count.reverse().forEach((v, i) => {
+    html += `<div data-bin="${bins-i-1}" style="width: ${v * 100}%; ${v > 0 ? "min-width: 1px;" : ""} background: ${rgbToHex(valueToBinColor[bins-i-1])}"></div>`
   });
   histogram.innerHTML = html;
   histogram.style.backgroundColor = rgbToHex(colors.scale[0]);
 }
 
 export function prepareHistogram({ header, image }, bins, { colors }, callback) {
+
+  if (bins % 2 === 0) {
+    bins++;
+  }
+
   const histogram_selections = document.getElementById('histogram_selections');
 
   function updateRange(from, to) {

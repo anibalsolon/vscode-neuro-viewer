@@ -1,6 +1,6 @@
 import { Readable } from 'stream';
 import * as zlib from 'zlib';
-import { Slicer, Stepper, Caster, createReadableStream, awaitReadableStream, isGzipped } from '../../util';
+import { Slicer, Stepper, Caster, createReadableStream, awaitReadableStream, isGzipped } from '../../utils';
 
 export enum NiftiDataType {
     NONE = 'NONE',
@@ -179,7 +179,7 @@ export abstract class Nifti {
         bits: number,
         min: number, max: number,
         scalingSlope: number, scalingIntercept: number
-    };;
+    };
 
     async header(): Promise<NiftiHeader> {
         if (this._header !== null) {

@@ -31,16 +31,16 @@ export function isGzipped(fd: number): boolean {
     );
 }
 
-export async function createReadableStream(path: fs.PathLike, options?: string | {
-    flags?: string;
-    encoding?: string;
-    fd?: number;
-    mode?: number;
-    autoClose?: boolean;
-    emitClose?: boolean;
-    start?: number;
-    end?: number;
-    highWaterMark?: number;
+export async function createReadableStream(path: fs.PathLike, options?: {
+  flags?: string | undefined;
+  encoding?: BufferEncoding | undefined;
+  fd?: number | fs.promises.FileHandle | undefined;
+  mode?: number | undefined;
+  autoClose?: boolean | undefined;
+  emitClose?: boolean | undefined;
+  start?: number | undefined;
+  highWaterMark?: number | undefined;
+  end?: number | undefined;
 }): Promise<fs.ReadStream> {
     const stream = fs.createReadStream(path, options);
     await awaitReadableStream(stream);
@@ -138,32 +138,25 @@ export class Normalizer extends Transform {
     private _oldmin: number = 0;
     private _oldmax: number;
     private _olddiff: number;
-    private _abs: boolean;
 
-    constructor(oldmin: number, oldmax: number, min: number, max: number, abs: boolean = false) {
+    constructor(oldmin: number, oldmax: number, min: number, max: number) {
         super({ objectMode: true });
         this._min = min;
         this._max = max;
-        this._diff = this._max - this._min;
+        this._diff = Math.max(Math.abs(this._min), Math.abs(this._max));
 
-        this._oldmin = oldmin;
-        this._oldmax = oldmax;
-        if (abs) {
-            this._oldmin = Math.abs(oldmin);
-            this._olddiff = Math.abs(this._oldmax - this._oldmin);
-        } else {
-            this._olddiff = this._oldmax - this._oldmin;
-        }
-        this._abs = abs;
+        this._oldmin = 0;
+        this._oldmax = Math.max(Math.abs(oldmin), Math.abs(oldmax));
+        this._olddiff = this._oldmax;
     }
 
     _transform(chunk: [number], encoding: string, callback: TransformCallback) {
         const _abs = Math.abs;
         for (let i = 0; i < chunk.length; i++) {
-            if (this._abs) {
-                chunk[i] = _abs(chunk[i]);
-            }
+            const sign = chunk[i] < 0 ? -1 : 1;
+            chunk[i] = _abs(chunk[i]);
             chunk[i] = (((chunk[i] - this._oldmin) * this._diff) / this._olddiff) + this._min;
+            chunk[i] *= sign;
         }
         this.push(chunk);
         callback();
@@ -177,7 +170,7 @@ export class Bufferizer extends Transform {
 
     _transform(chunk: number[], encoding: string, callback: TransformCallback) {
         // const rounded: number[] = chunk.map((v) => Math.round(v));
-        this.push(Buffer.from(chunk));
+        this.push(Buffer.from(Int16Array.from(chunk).buffer));
         callback();
     };
 }

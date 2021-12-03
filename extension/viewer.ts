@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { disposeAll } from './dispose';
-import { getNonce } from './util';
+import { getNonce } from './utils';
 import { NiftiDocument } from './document';
 import { FileServer } from './fileserver';
 
@@ -62,22 +62,21 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken
     ): Promise<void> {
-        const header = await document.metadata();
         this.webviews.add(document.uri, webviewPanel);
         webviewPanel.webview.options = {
             enableScripts: true,
         };
         webviewPanel.webview.html = await this.getHtmlForWebview(webviewPanel.webview);
-        webviewPanel.webview.onDidReceiveMessage(e => {
+        webviewPanel.webview.onDidReceiveMessage(async (e) => {
             if (e.type === 'ready') {
-                webviewPanel.webview.postMessage({
-                    type: 'init',
-                    body: {
-                        ws: this._ws.uri?.toString(),
-                        header,
-                        uuid: document.uuid,
-                    }
-                });
+              webviewPanel.webview.postMessage({
+                  type: 'init',
+                  body: {
+                      ws: this._ws.uri?.toString(),
+                      header: await document.metadata(),
+                      uuid: document.uuid,
+                  }
+              });
             }
         });
     }

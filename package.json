@@ -2,10 +2,10 @@
 	"name": "neuro-viewer",
 	"displayName": "NeuroViewer",
 	"description": "View your neuroimaging files in VSCode!",
-	"version": "0.0.8",
+	"version": "0.0.9",
 	"publisher": "anibalsolon",
 	"engines": {
-		"vscode": "^1.46.0"
+		"vscode": "^1.62.0"
 	},
 	"categories": [
 		"Visualization",
@@ -58,13 +58,13 @@
 	},
 	"scripts": {
 		"vscode:prepublish": "webpack --mode production",
-		"webpack": "webpack --mode development",
-		"webpack-dev": "webpack --mode development --watch",
+		"webpack:dev": "webpack --mode development --watch",
 		"test:unittests": "mocha",
 		"test:unittests:grep": "mocha --grep",
 		"test:unittests:cover": "nyc mocha",
         "lint": "eslint . --ext .ts",
-        "lint:fix": "eslint . --ext .ts --fix"
+        "lint:fix": "eslint . --ext .ts --fix",
+        "clean": "rm -rf dist .nyc_output .vscode-test"
 	},
 	"devDependencies": {
 		"@types/mocha": "^9.0.0",

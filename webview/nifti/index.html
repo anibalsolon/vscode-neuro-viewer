@@ -8,58 +8,57 @@
   <link href="${styleUri}" rel="stylesheet">
 </head>
 <body>
-  <table>
-    <thead>
-      <tr>
-        <th>Dimensions</th>
-        <th>Data Resolution</th>
-        <th>Orientation</th>
-        <th>Data Type</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td id="dimensions"></td>
-        <td id="pixel_sizes"></td>
-        <td id="orientation"></td>
-        <td id="data_type"></td>
-      </tr>
-    </tbody>
-    <thead>
-      <tr>
-        <th colspan="4">Geometry</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td colspan="4" id="geometry"></td>
-      </tr>
-    </tbody>
-  </table>
+  <div id="info">
+    <table>
+      <thead>
+        <tr>
+          <th>Dimensions</th>
+          <th>Data Resolution</th>
+          <th>Orientation</th>
+          <th>Data Type</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </tbody>
+      <thead>
+        <tr>
+          <th colspan="4">Geometry</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td colspan="4"></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
   <div id="canvas">
     <div id="message"></div>
     <div id="tools">
-      <div id="axes">
-      </div>
+      <div id="axes"></div>
       <div id="slicer">
         <div id="slice">⊝</div>
         <div id="range">
           <div id="position"></div>
-          <div id="thumbnail">
-            <canvas id="canvas_thumbnail"></canvas>
-          </div>
+          <div id="thumbnail"></div>
         </div>
       </div>
     </div>
-    <div id="canvas_wrapper">
-      <canvas id="canvas_draw"></canvas>
-      <canvas id="canvas_histogram"></canvas>
-    </div>
-    <div id="histogram">
-      <div id="histogram_bins"></div>
-      <div id="histogram_selections"></div>
-    </div>
+    <div id="main"></div>
+    <div id="histogram"></div>
   </div>
   <script nonce="${nonce}" src="${scriptUri}"></script>
+  <script nonce="${nonce}">
+    document.addEventListener("DOMContentLoaded", function(event) {
+    const vscode = acquireVsCodeApi();
+    vscode.postMessage({ type: 'ready' });
+    });
+  </script>
 </body>
 </html>

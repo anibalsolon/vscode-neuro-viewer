@@ -44,7 +44,7 @@ describe('Nifti Format', () => {
     const nii = new nifti.Nifti1(fd);
     const header = await nii.header();
     assert(header.dataType === nifti.NiftiDataType.INT8);
-    assert(header.dimensions.toString() === [4, 3, 3, 2, 4].toString());
+    assert(header.dimensions.toString() === [3, 3, 2, 4].toString());
     assert(header.values.min === 1);
     assert(header.values.max === 4);
     assert(header.affine.toString() === [[1, 0, 0, 0],
@@ -58,7 +58,7 @@ describe('Nifti Format', () => {
     const nii = new nifti.Nifti1(fd);
     const header = await nii.header();
     assert(header.dataType === nifti.NiftiDataType.INT8);
-    assert(header.dimensions.toString() === [4, 3, 3, 2, 4].toString());
+    assert(header.dimensions.toString() === [3, 3, 2, 4].toString());
     assert(header.values.min === 1);
     assert(header.values.max === 4);
     fs.closeSync(fd);
@@ -69,7 +69,7 @@ describe('Nifti Format', () => {
     const nii = new nifti.Nifti2(fd);
     const header = await nii.header();
     assert(header.dataType === nifti.NiftiDataType.INT8);
-    assert(header.dimensions.toString() === [4, 3, 3, 2, 4].toString());
+    assert(header.dimensions.toString() === [3, 3, 2, 4].toString());
     assert(header.values.min === 1);
     assert(header.values.max === 4);
     assert(header.affine.toString() === [[1, 0, 0, 0],
@@ -86,7 +86,7 @@ describe('Nifti Format', () => {
     const stream = await nii.values();
 
     let values = [];
-    for await (const chunk of stream.pipe(new utils.Normalizer(min, max, 0, 3))) {
+    for await (const chunk of stream.pipe(new utils.Normalizer(min, max, 0, 3, false))) {
       values.push(...chunk);
     }
 
@@ -104,7 +104,7 @@ describe('Nifti Format', () => {
     const stream = await nii.values();
 
     let values = [];
-    for await (const chunk of stream.pipe(new utils.Normalizer(min, max, 0, 3))) {
+    for await (const chunk of stream.pipe(new utils.Normalizer(min, max, 0, 3, false))) {
       values.push(...chunk);
     }
 

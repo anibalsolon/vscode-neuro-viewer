@@ -1,3 +1,7 @@
+* {
+    user-select: none;
+}
+
 html, body {
     margin: 1em; padding: 0;
     overflow: hidden;
@@ -50,7 +54,7 @@ canvas {
     position: absolute;
 }
 
-#canvas_wrapper {
+#main {
     flex-grow: 1;
     position: relative;
 }
@@ -74,6 +78,10 @@ canvas {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+
+#info > table {
+    width: 100%;
 }
 
 #tools {
@@ -104,6 +112,7 @@ canvas {
     flex-direction: column;
     flex-grow: 1;
     background: var(--vscode-menu-background);
+    padding-bottom: 0.5em;
 }
 
 #slice {
@@ -112,12 +121,12 @@ canvas {
     text-align: center;
     font-weight: bold;
     background: var(--vscode-activityBar-background);
+    margin-bottom: 0.5em;
 }
 
 #range {
     position: relative;
     flex-grow: 1;
-    margin: 0.5em 0;
 }
 
 #position {
@@ -129,6 +138,7 @@ canvas {
     right: 0;
     margin-left: 0.5em;
     margin-right: 1.25em;
+    /* pointer-events: none; */
 }
 #position:before {
 	left: 100%;
@@ -166,7 +176,7 @@ canvas {
     background: var(--vscode-menu-background);
     position: relative;
 }
-#histogram_bins {
+#histogram > div.bins {
     position: absolute;
     display: flex;
     flex-direction: column;
@@ -177,18 +187,18 @@ canvas {
     right: 0.4em;
     padding: 0.2em;
 }
-#histogram_bins div {
+#histogram > div.bins > div {
     background: var(--vscode-minimap-selectionHighlight);
     flex-grow: 1;
 }
-#histogram_selections {
+#histogram > div.selection {
     position: absolute;
     top: 0.4em;
     bottom: 0.4em;
     left: 0.4em;
     right: 0.4em;
 }
-#histogram_selections div {
+#histogram > div.selection > div {
     background: var(--vscode-minimap-findMatchHighlight);
     opacity: 0.7;
     position: absolute;

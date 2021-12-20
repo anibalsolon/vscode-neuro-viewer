@@ -55,7 +55,7 @@ const webview = {
   ...general,
   target: 'web',
   entry: {
-    webview_nifti: './webview/nifti/index.js'
+    webview_nifti: './webview/nifti/index.ts'
   },
   output: {
     ...general.output,

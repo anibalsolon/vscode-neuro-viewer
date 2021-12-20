@@ -2,12 +2,11 @@
 	"compilerOptions": {
 		"module": "commonjs",
 		"target": "es2019",
-		"lib": ["ES2019"],
+		"lib": ["ES2019", "dom"],
 		"outDir": "dist",
 		"sourceMap": true,
 		"strict": true,
 		"rootDir": ".",
 	},
-	"exclude": ["node_modules"],
-	
+	"exclude": ["node_modules", "dist"]
 }

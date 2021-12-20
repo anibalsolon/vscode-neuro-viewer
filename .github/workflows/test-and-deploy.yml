@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.GITHUB_PAT }}
+          token: ${{ secrets.GH_PAT }}
       - run: npm install
       - run: git config --global user.name 'Anibal Solon'
       - run: git config --global user.email 'anibalsolon@gmail.com'

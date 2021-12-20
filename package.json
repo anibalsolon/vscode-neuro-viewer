@@ -57,14 +57,15 @@
 		}
 	},
 	"scripts": {
-		"vscode:prepublish": "webpack --mode production",
 		"webpack:dev": "webpack --mode development --watch",
 		"test:unittests": "mocha",
 		"test:unittests:grep": "mocha --grep",
 		"test:unittests:cover": "nyc mocha",
-        "lint": "eslint . --ext .ts",
-        "lint:fix": "eslint . --ext .ts --fix",
-        "clean": "rm -rf dist .nyc_output .vscode-test"
+		"lint": "eslint . --ext .ts",
+		"lint:fix": "eslint . --ext .ts --fix",
+		"clean": "rm -rf dist .nyc_output .vscode-test",
+		"vscode:prepublish": "webpack --mode production",
+		"vscode:publish": "vsce package && vsce publish"
 	},
 	"devDependencies": {
 		"@types/mocha": "^9.0.0",
@@ -80,6 +81,7 @@
 		"ts-loader": "^9.2.6",
 		"ts-node": "^10.4.0",
 		"typescript": "^4.5.2",
+		"vsce": "^2.5.3",
 		"vscode-test": "^1.6.1",
 		"webpack": "^5.64.4",
 		"webpack-cli": "^4.9.1"

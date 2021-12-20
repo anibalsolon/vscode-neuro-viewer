@@ -23,7 +23,7 @@ export function isGzipped(fd: number): boolean {
   const view = new DataView(buffer);
   const bytes = fs.readSync(fd, view, 0, 2, 0);
   if (bytes < 2){
-    throw new Error("Invalid file: empty")
+    throw new Error("Invalid file: empty");
   }
   return (
     view.getUint8(0) === GZIP_MAGIC_COOKIE[0] &&
@@ -88,7 +88,7 @@ export class Slicer extends Transform {
     }
     if (this._offset_end !== null && this._passedThrough >= this._offset_end) {
       callback();
-      return
+      return;
     }
     const begin = this._passedThrough > this._offset ? 0 : this._offset - this._passedThrough;
     let end = undefined;
@@ -181,8 +181,8 @@ export class Bufferizer extends Transform {
   }
 
   _transform(chunk: number[], encoding: string, callback: TransformCallback) {
-    // const rounded: number[] = chunk.map((v) => Math.round(v));
-    this.push(Buffer.from(Int16Array.from(chunk).buffer));
+    const int16Array = Int16Array.from(chunk);
+    this.push(Buffer.from(int16Array.buffer));
     callback();
   }
 }

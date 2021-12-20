@@ -1,95 +1,100 @@
 {
-	"name": "neuro-viewer",
-	"displayName": "NeuroViewer",
-	"description": "View your neuroimaging files in VSCode!",
-	"version": "0.0.9",
-	"publisher": "anibalsolon",
-	"engines": {
-		"vscode": "^1.62.0"
-	},
-	"categories": [
-		"Visualization",
-		"Data Science",
-		"Other"
-	],
-	"keywords": [
-		"neuroimaging",
-		"neuroscience",
-		"MRI",
-		"Nifti"
-	],
-	"icon": "neuro-viewer.png",
-	"galleryBanner": {
-		"color": "#1e1e1e",
-		"theme": "dark"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/anibalsolon/vscode-neuro-viewer.git"
-	},
-	"bugs": {
-		"url": "https://github.com/anibalsolon/vscode-neuro-viewer/issues",
-		"email": "anibalsolon@gmail.com"
-	},
-	"activationEvents": [
-		"onCustomEditor:neuro-viewer.Nifti"
-	],
-	"main": "./dist/extension.js",
-	"contributes": {
-		"customEditors": [
-			{
-				"viewType": "neuro-viewer.Nifti",
-				"displayName": "Nifti Viewer",
-				"selector": [
-					{
-						"filenamePattern": "*.nii"
-					},
-					{
-						"filenamePattern": "*.nii.gz"
-					}
-				]
-			}
-		]
-	},
-	"capabilities": {
-		"untrustedWorkspaces": {
-			"supported": true
-		}
-	},
-	"scripts": {
-		"webpack:dev": "webpack --mode development --watch",
-		"test:unittests": "mocha",
-		"test:unittests:grep": "mocha --grep",
-		"test:unittests:cover": "nyc mocha",
-		"lint": "eslint . --ext .ts",
-		"lint:fix": "eslint . --ext .ts --fix",
-		"clean": "rm -rf dist .nyc_output .vscode-test neuro-viewer-*.vsix",
-		"vscode:prepublish": "webpack --mode production",
+    "name": "neuro-viewer",
+    "displayName": "NeuroViewer",
+    "description": "View your neuroimaging files in VSCode!",
+    "version": "0.0.9",
+    "publisher": "anibalsolon",
+    "engines": {
+        "vscode": "^1.62.0"
+    },
+    "categories": [
+        "Visualization",
+        "Data Science",
+        "Other"
+    ],
+    "keywords": [
+        "neuroimaging",
+        "neuroscience",
+        "MRI",
+        "Nifti"
+    ],
+    "icon": "neuro-viewer.png",
+    "galleryBanner": {
+        "color": "#1e1e1e",
+        "theme": "dark"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/anibalsolon/vscode-neuro-viewer.git"
+    },
+    "bugs": {
+        "url": "https://github.com/anibalsolon/vscode-neuro-viewer/issues",
+        "email": "anibalsolon@gmail.com"
+    },
+    "activationEvents": [
+        "onCustomEditor:neuro-viewer.Nifti"
+    ],
+    "main": "./dist/extension.js",
+    "contributes": {
+        "customEditors": [
+            {
+                "viewType": "neuro-viewer.Nifti",
+                "displayName": "Nifti Viewer",
+                "selector": [
+                    {
+                        "filenamePattern": "*.nii"
+                    },
+                    {
+                        "filenamePattern": "*.nii.gz"
+                    }
+                ]
+            }
+        ]
+    },
+    "capabilities": {
+        "untrustedWorkspaces": {
+            "supported": true
+        }
+    },
+    "scripts": {
+        "webpack:dev": "webpack --mode development --watch",
+        "test:unittests": "mocha",
+        "test:unittests:grep": "mocha --grep",
+        "test:unittests:cover": "nyc mocha",
+        "test:vscode": "tsc -p . --outDir .test_output && node ./.test_output/test/runTest.js",
+        "lint": "eslint . --ext .ts",
+        "lint:fix": "eslint . --ext .ts --fix",
+        "clean": "rm -rf dist .nyc_output .test_output neuro-viewer-*.vsix",
+        "vscode:prepublish": "webpack --mode production",
         "vscode:package": "vsce package",
-		"vscode:vsce:publish": "vsce publish -i neuro-viewer-*.vsix --pat",
-		"vscode:ovsx:publish": "ovsx publish neuro-viewer-*.vsix --pat"
-	},
-	"devDependencies": {
-		"@types/mocha": "^9.0.0",
-		"@types/node": "^16.11.11",
-		"@types/uuid": "^8.3.3",
-		"@types/vscode": "^1.62.0",
-		"@typescript-eslint/eslint-plugin": "^5.7.0",
-		"@typescript-eslint/parser": "^5.7.0",
-		"copy-webpack-plugin": "^10.0.0",
-		"eslint": "^8.4.1",
-		"mocha": "^9.1.3",
-		"nyc": "^15.1.0",
-		"ovsx": "^0.2.1",
-		"ts-loader": "^9.2.6",
-		"ts-node": "^10.4.0",
-		"typescript": "^4.5.2",
-		"vsce": "^2.5.3",
-		"vscode-test": "^1.6.1",
-		"webpack": "^5.64.4",
-		"webpack-cli": "^4.9.1"
-	},
-	"dependencies": {
-		"uuid": "^8.3.2"
-	}
+        "vscode:vsce:publish": "vsce publish -i neuro-viewer-*.vsix --pat",
+        "vscode:ovsx:publish": "ovsx publish neuro-viewer-*.vsix --pat"
+    },
+    "devDependencies": {
+        "@types/chai": "^4.3.0",
+        "@types/glob": "^7.2.0",
+        "@types/mocha": "^9.0.0",
+        "@types/node": "^16.11.11",
+        "@types/uuid": "^8.3.3",
+        "@types/vscode": "^1.62.0",
+        "@typescript-eslint/eslint-plugin": "^5.7.0",
+        "@typescript-eslint/parser": "^5.7.0",
+        "@vscode/test-electron": "^2.0.0",
+        "chai": "^4.3.4",
+        "copy-webpack-plugin": "^10.0.0",
+        "eslint": "^8.4.1",
+        "mocha": "^9.1.3",
+        "nyc": "^15.1.0",
+        "ovsx": "^0.2.1",
+        "ts-loader": "^9.2.6",
+        "ts-node": "^10.4.0",
+        "typescript": "^4.5.2",
+        "vsce": "^2.5.3",
+        "vscode-test": "^1.6.1",
+        "webpack": "^5.64.4",
+        "webpack-cli": "^4.9.1"
+    },
+    "dependencies": {
+        "uuid": "^8.3.2"
+    }
 }

@@ -4,4 +4,5 @@ node_modules
 dist
 /data
 .nyc_output
+.test_output
 coverage

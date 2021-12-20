@@ -35,7 +35,7 @@ export function lerp(c1: Color, c2: Color, ratio: number): Color {
     (c1[1] + ((c2[1] - c1[1]) * ratio)) ^ 0,
     (c1[2] + ((c2[2] - c1[2]) * ratio)) ^ 0,
     (c1[3] + ((c2[3] - c1[3]) * ratio)) ^ 0,
-  ]
+  ];
 }
 
 export class ColorPalette {

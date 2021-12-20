@@ -1,12 +1,10 @@
-const fs = require('fs');
-const assert = require('assert');
-
-const utils = require('../../extension/utils');
+import { expect } from 'chai';
+import { Stepper } from '../../extension/utils';
 
 describe('Stepper', () => {
   it('should step data', async () => {
     const step = 3;
-    const slicer = new utils.Stepper(step);
+    const slicer = new Stepper(step);
     slicer.write(Buffer.from('abcde'));
     slicer.write(Buffer.from('fghij'));
     slicer.write(Buffer.from('klmno'));
@@ -16,26 +14,32 @@ describe('Stepper', () => {
     slicer.end();
     let res = '';
     for await (const chunk of slicer) {
-      assert(chunk.length % step === 0, chunk.length);
+      expect(chunk.length % step === 0, chunk.length);
       res += chunk.toString('ascii');
     }
-    assert(res === 'abcdefghijklmnopqrstuvwx', res);
+    expect(res).to.equal('abcdefghijklmnopqrstuvwx');
   });
   it('should fail on build', async () => {
     try {
-      const slicer = new utils.Stepper(-1);
+      new Stepper(-1);
     } catch (error) {
-      assert(error.message === 'Invalid step');
+      if (error instanceof Error) {
+        expect(error.message).to.equal('Invalid step');
+      }
     }
     try {
-      const slicer = new utils.Stepper(0);
+      new Stepper(0);
     } catch (error) {
-      assert(error.message === 'Invalid step');
+      if (error instanceof Error) {
+        expect(error.message).to.equal('Invalid step');
+      }
     }
     try {
-      const slicer = new utils.Stepper(0.1);
+      new Stepper(0.1);
     } catch (error) {
-      assert(error.message === 'Invalid step');
+      if (error instanceof Error) {
+        expect(error.message).to.equal('Invalid step');
+      }
     }
   });
 });

@@ -3,7 +3,6 @@
 test/**
 .gitignore
 .yarnrc
-vsc-extension-quickstart.md
 **/jsconfig.json
 **/*.map
 **/.eslintrc.json
@@ -14,3 +13,5 @@ data
 extension
 webview
 *.ipynb
+.nyc_output
+.test_output

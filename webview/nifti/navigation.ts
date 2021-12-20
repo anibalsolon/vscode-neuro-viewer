@@ -97,7 +97,7 @@ export class NavigationView {
   onThumbnailBrowsing(e: HTMLElementEventMap['mouseover'] | HTMLElementEventMap['mousemove']| HTMLElementEventMap['mouseout']) {
     e.preventDefault();
     const boundingRect = this.el.range.getBoundingClientRect();
-    const rangeRect = { height: boundingRect.height, top: boundingRect.top }
+    const rangeRect = { height: boundingRect.height, top: boundingRect.top };
     const thumbRect = this.el.thumb.getBoundingClientRect();
     const thumbHeight = thumbRect.height / 2;
     rangeRect.height -= thumbRect.height;
@@ -128,7 +128,7 @@ export class NavigationView {
 
   onPositioning(e: HTMLElementEventMap['click']) {
     e.preventDefault();
-    const thumbRect = this.el.thumb.getBoundingClientRect()
+    const thumbRect = this.el.thumb.getBoundingClientRect();
     const rangeRect = this.el.range.getBoundingClientRect();
     const slices = this.slices[this.axis];
     const y = e.clientY - rangeRect.top - thumbRect.height / 2;
@@ -165,9 +165,9 @@ export class NavigationView {
 
   setSlice(slice: number) {
     if (slice < 0) {
-      slice = this.slices[this.axis] - Math.abs(slice)
+      slice = this.slices[this.axis] - Math.abs(slice);
     } else if (slice >= this.slices[this.axis]) {
-      slice = slice - this.slices[this.axis]
+      slice = slice - this.slices[this.axis];
     }
 
     this.selectedSlice[this.axis] = slice;

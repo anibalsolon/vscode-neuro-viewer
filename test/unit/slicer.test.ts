@@ -1,11 +1,9 @@
-const fs = require('fs');
-const assert = require('assert');
-
-const utils = require('../../extension/utils');
+import { expect } from 'chai';
+import { Slicer } from '../../extension/utils';
 
 describe('Slicer', () => {
   it('should slice data', async () => {
-    const slicer = new utils.Slicer(3, 10);
+    const slicer = new Slicer(3, 10);
     slicer.write(Buffer.from('abcde'));
     slicer.write(Buffer.from('fghij'));
     slicer.write(Buffer.from('klmno'));
@@ -17,10 +15,10 @@ describe('Slicer', () => {
     for await (const chunk of slicer) {
       res += chunk.toString('ascii');
     }
-    assert(res === 'defghijklm', res)
+    expect(res).to.equal('defghijklm', res);
   });
   it('should slice data to the end', async () => {
-    const slicer = new utils.Slicer(5);
+    const slicer = new Slicer(5);
     slicer.write(Buffer.from('abcde'));
     slicer.write(Buffer.from('fghij'));
     slicer.write(Buffer.from('klmno'));
@@ -32,10 +30,10 @@ describe('Slicer', () => {
     for await (const chunk of slicer) {
       res += chunk.toString('ascii');
     }
-    assert(res === 'fghijklmnopqrstuvwxyz')
+    expect(res).to.equal('fghijklmnopqrstuvwxyz');
   });
   it('should slice data, skipping some chunks', async () => {
-    const slicer = new utils.Slicer(11, 10);
+    const slicer = new Slicer(11, 10);
     slicer.write(Buffer.from('abcde'));
     slicer.write(Buffer.from('fghij'));
     slicer.write(Buffer.from('klmno'));
@@ -47,6 +45,6 @@ describe('Slicer', () => {
     for await (const chunk of slicer) {
       res += chunk.toString('ascii');
     }
-    assert(res === 'lmnopqrstu', res)
+    expect(res).to.equal('lmnopqrstu', res);
   });
 });

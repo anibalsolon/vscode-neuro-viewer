@@ -227,7 +227,7 @@ export abstract class Nifti {
             intercept: scalingIntercept,
           },
         }
-      }
+      };
 
       if (min === max && min === 0) {
         const values = await this.values();

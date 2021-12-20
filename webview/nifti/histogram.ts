@@ -127,7 +127,7 @@ export class HistogramView {
         <div
           data-bin="${this.bins-i-1}"
           style="width: ${v * 100}%; ${v > 0 ? "min-width: 1px;" : ""} background: ${bg}"
-        ></div>`
+        ></div>`;
     });
     this.el.bins.innerHTML = html;
     this.el.bins.style.backgroundColor = rgbToHex(this.palette.getColor(0));
@@ -157,7 +157,7 @@ export class HistogramView {
         this.dispatchRange(from, to);
       }
       moved = true;
-    }
+    };
 
     const mouseup = (e: MouseEvent) => {
       document.removeEventListener('mousemove', mousemove);
@@ -173,7 +173,7 @@ export class HistogramView {
         return;
       clicked = false;
       mousemove(e);
-    }
+    };
 
     const mousedown = (e: MouseEvent) => {
       moved = false;

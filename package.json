@@ -63,9 +63,11 @@
 		"test:unittests:cover": "nyc mocha",
 		"lint": "eslint . --ext .ts",
 		"lint:fix": "eslint . --ext .ts --fix",
-		"clean": "rm -rf dist .nyc_output .vscode-test",
+		"clean": "rm -rf dist .nyc_output .vscode-test neuro-viewer-*.vsix",
 		"vscode:prepublish": "webpack --mode production",
-		"vscode:publish": "vsce package && vsce publish"
+        "vscode:package": "vsce package",
+		"vscode:vsce:publish": "vsce publish -i neuro-viewer-*.vsix --pat",
+		"vscode:ovsx:publish": "ovsx publish neuro-viewer-*.vsix --pat"
 	},
 	"devDependencies": {
 		"@types/mocha": "^9.0.0",
@@ -78,6 +80,7 @@
 		"eslint": "^8.4.1",
 		"mocha": "^9.1.3",
 		"nyc": "^15.1.0",
+		"ovsx": "^0.2.1",
 		"ts-loader": "^9.2.6",
 		"ts-node": "^10.4.0",
 		"typescript": "^4.5.2",

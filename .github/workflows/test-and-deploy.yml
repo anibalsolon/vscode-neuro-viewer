@@ -1,0 +1,31 @@
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+name: Unit Testing
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      - run:
+        env:
+          DISPLAY: ':99.0'
+  deploy:
+    if: github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, '[RELEASE]')
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
+      - run: npm install
+      - run: git config --global user.name 'Anibal Solon'
+      - run: git config --global user.email 'anibalsolon@gmail.com'
+      - run: npm version patch -m "[RELEASE] %s"
+      - run: git push

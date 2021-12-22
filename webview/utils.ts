@@ -86,7 +86,8 @@ export class ColorPalette {
 }
 
 export function dynFixed(number: number, decimals: number) {
-  return number.toFixed(decimals).replace(/^[.0]+|[.0]+$/g, '') || '0';
+  const factor = Math.pow(10, decimals);
+  return (Math.round(number * factor) / factor).toString().replace(/^[.0]+|[.0]+$/g, '') || '0';
 }
 
 export function scale(value: number, from: [number, number], to: [number, number]): number {

@@ -1,6 +1,7 @@
 import { DATA_TYPE_RANGE } from './constants';
 import { NiftiImage } from './format';
-import { scale, rgbToHex, Color, ColorPalette } from './utils';
+import { scale, rgbToHex, Color, ColorPalette } from '../utils';
+import { EventEmitter } from '../events';
 
 type SelectEvent = { from: number, to: number }
 
@@ -8,7 +9,7 @@ type EventType = "select";
 type EventArgs = SelectEvent;
 type EventCallback<T> = (data: T) => void;
 
-export class HistogramView {
+export class HistogramView extends EventEmitter<EventType, EventArgs> {
 
   el: {
     root: HTMLElement,
@@ -23,16 +24,10 @@ export class HistogramView {
   palette: ColorPalette;
   highlightPalette: ColorPalette;
 
-  callbacks: {
-    select: EventCallback<SelectEvent>[],
-  };
-
   constructor(el: HTMLElement, image: NiftiImage, bins: number, palette: ColorPalette, highlightPalette: ColorPalette) {
+    super();
     this.el = {
       root: el,
-    };
-    this.callbacks = {
-      select: [],
     };
 
     this.image = image;
@@ -62,14 +57,12 @@ export class HistogramView {
 
   on(event: "select", callback: EventCallback<SelectEvent>): void;
   on(event: EventType, callback: any): void { // eslint-disable-line @typescript-eslint/no-explicit-any
-    this.callbacks[event].push(callback);
+    super.on(event, callback);
   }
 
   dispatch(event: "select", data: SelectEvent): void;
   dispatch(event: EventType, data: EventArgs) {
-    this.callbacks[event].forEach(cb => {
-      cb(data);
-    });
+    super.dispatch(event, data);
   }
 
   render() {

@@ -1,5 +1,5 @@
 import { NiftiHeader } from './format';
-import { dynFixed } from './utils';
+import { dynFixed } from '../utils';
 
 export class InfoView {
 
@@ -48,5 +48,16 @@ export class InfoView {
     );
   
     this.el.dataType.innerHTML = `${header.dataType}`;
+  }
+
+  update(position?: [number, number, number], value?: number) {
+    let str = '';
+    if (position) {
+      str += `[${position.map(i => i+1).join(', ')}]`;
+      if (value) {
+        str += `: ${dynFixed(value, 3)}`;
+      }
+    }
+    this.el.geometry.innerHTML = str;
   }
 }

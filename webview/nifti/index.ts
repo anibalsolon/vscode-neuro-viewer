@@ -34,8 +34,8 @@ function prepareRender(ws: string, uuid: string, image: NiftiImage) {
   );
   const mainLayer = new HighlightRenderViewLayer(palette, highlightPalette);
 
-  histogramView.on('select', (data) => {
-    mainLayer.setHighlight([data.from, data.to]);
+  histogramView.on('select', ({ from, to }) => {
+    mainLayer.setHighlight([from, to]);
     mainLayer.update();
   });
 
@@ -57,6 +57,13 @@ function prepareRender(ws: string, uuid: string, image: NiftiImage) {
       mainLayer,
     ]
   );
+
+  mainLayer.on('over', ({ position, value }) => {
+    renderView.update(undefined, undefined, position, value);
+  });
+  mainLayer.on('out', () => {
+    renderView.update(undefined, undefined, null, null);
+  });
 
   window.addEventListener('wheel', (e) => navigationView.setSliceDelta(Math.sign(e.deltaY)), false);
   window.addEventListener('resize', () => renderView.update());

@@ -1,4 +1,4 @@
-import { hexToRgb, ColorPalette } from './utils';
+import { hexToRgb, ColorPalette } from '../utils';
 
 const documentElement = getComputedStyle(document.documentElement);
 

@@ -1,34 +1,61 @@
-import * as path from 'path';
-import * as Mocha from 'mocha';
-import * as glob from 'glob';
+import path from 'path';
+import Mocha from 'mocha';
+import NYC from 'nyc';
+import glob from 'glob';
 
-export function run(): Promise<void> {
+export async function run(): Promise<void> {
+  const nyc = new NYC({
+    extends: "@istanbuljs/nyc-config-typescript",
+    exclude: [
+      "**/*.d.ts",
+      "**/*.test.js",
+      "coverage",
+      "test",
+      ".vscode-test",
+      "webpack.config.js"
+    ],
+    reporter: [
+      "html",
+      "text",
+      "text-summary"
+    ],
+    all: true,
+    cache: false,
+    sourceMap: true,
+    hookRequire: true,
+    hookRunInContext: true,
+    hookRunInThisContext: true,
+    instrument: true,
+    require: ["ts-node/register"],
+  });
+  await nyc.createTempDirectory();
+  await nyc.reset();
+  await nyc.wrap();
+
   const mocha = new Mocha({
     ui: 'tdd',
-    color: true
   });
 
   const testsRoot = path.resolve(__dirname, '..');
-
-  return new Promise((c, e) => {
-    glob('suite/**/**.test.js', { cwd: testsRoot }, (err, files) => {
-      if (err) {
-        return e(err);
+  const files: Array<string> = await new Promise((resolve, reject) =>
+    glob(
+      'suite/**.test.js',
+      {
+        cwd: testsRoot,
+      },
+      (err, files) => {
+        console.error("err", err, files);
+        if (err) reject(err);
+        else resolve(files);
       }
+    )
+  );
+  files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
 
-      files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
+  const failures: number = await new Promise(resolve => mocha.run(resolve));
+  await nyc.writeCoverageFile();
 
-      try {
-        mocha.run(failures => {
-          if (failures > 0) {
-            e(new Error(`${failures} tests failed.`));
-          } else {
-            c();
-          }
-        });
-      } catch (err) {
-        e(err);
-      }
-    });
-  });
+  if (failures > 0) {
+    throw new Error(`${failures} tests failed.`);
+  }
 }

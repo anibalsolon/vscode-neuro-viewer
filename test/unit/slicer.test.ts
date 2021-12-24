@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { Slicer } from '../../extension/utils';
 
-describe('Slicer', () => {
-  it('should slice data', async () => {
+suite('Slicer', () => {
+  test('should slice data', async () => {
     const slicer = new Slicer(3, 10);
     slicer.write(Buffer.from('abcde'));
     slicer.write(Buffer.from('fghij'));
@@ -17,7 +17,7 @@ describe('Slicer', () => {
     }
     expect(res).to.equal('defghijklm', res);
   });
-  it('should slice data to the end', async () => {
+  test('should slice data to the end', async () => {
     const slicer = new Slicer(5);
     slicer.write(Buffer.from('abcde'));
     slicer.write(Buffer.from('fghij'));
@@ -32,7 +32,7 @@ describe('Slicer', () => {
     }
     expect(res).to.equal('fghijklmnopqrstuvwxyz');
   });
-  it('should slice data, skipping some chunks', async () => {
+  test('should slice data, skipping some chunks', async () => {
     const slicer = new Slicer(11, 10);
     slicer.write(Buffer.from('abcde'));
     slicer.write(Buffer.from('fghij'));

@@ -9,8 +9,13 @@ async function main() {
       extensionDevelopmentPath,
       extensionTestsPath,
       launchArgs: [
-        '--disable-extensions'
-      ],
+        '--disable-extensions',
+        '--skip-welcome',
+        '--skip-release-notes',
+        '--enable-proposed-api',
+        '--timeout', '5000',
+        '--verbose',
+      ]
     });
   } catch (err) {
     console.error(err);

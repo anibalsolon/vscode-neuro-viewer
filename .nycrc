@@ -1,18 +1,20 @@
 {
-    "extension": [
-        ".ts"
-    ],
+    "extends": "@istanbuljs/nyc-config-typescript",
     "exclude": [
         "**/*.d.ts",
         "**/*.test.js",
         "coverage",
         "dist",
         "test",
+        ".vscode-test",
         "webpack.config.js"
     ],
     "reporter": [
-        "html"
+        "html",
+        "text",
+        "text-summary"
     ],
     "all": true,
-    "cache": true
+    "cache": false,
+    "source-map": true
 }

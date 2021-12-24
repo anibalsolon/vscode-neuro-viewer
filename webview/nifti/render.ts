@@ -345,7 +345,7 @@ export class RenderView {
     }
     if (position !== undefined) {
       if (position !== null) {
-        this.el.root.setAttribute('data-position', `${position[0]},${position[1]},${position[2]}`);
+        this.el.root.setAttribute('data-position', `${position[0] + 1},${position[1] + 1},${position[2] + 1}`);
         if (value !== undefined && value !== null) {
           const rounded = Math.round(value);
           this.el.root.setAttribute('data-value', Math.abs(value - rounded) < 0.01 ? rounded.toString() : dynFixed(value, 3));

@@ -134,9 +134,9 @@ export class ColorPalette {
       c++;
     }
     if (c === 0) {
-      return [0, 0, 0, 0];
+      return this.palette[this.intervals[0]];
     } else if (c === this.intervals.length) {
-      return [0, 0, 0, 0];
+      return this.palette[this.intervals[this.intervals.length - 1]];
     }
     const s = scale(
       ratio,

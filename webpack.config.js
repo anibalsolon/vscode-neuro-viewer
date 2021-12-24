@@ -27,6 +27,13 @@ const general = {
         loader: 'html-loader',
       },
       {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          'css-loader'
+        ]
+      },
+      {
         test: /\.ts$/,
         exclude: /node_modules/,
         use: [
@@ -64,7 +71,7 @@ const webview = {
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: "webview", to: "webview" },
+        { from: "webview/nifti/index.html", to: "webview/nifti/index.html" },
       ],
     }),
   ],

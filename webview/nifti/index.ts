@@ -6,6 +6,7 @@ import { NiftiImage } from './format';
 import { HistogramView } from './histogram';
 
 import { palettes, PalettesView } from './palettes';
+import './index.css';
 
 function prepareRender(ws: string, uuid: string, image: NiftiImage) {
 

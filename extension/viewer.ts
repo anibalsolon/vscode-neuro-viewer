@@ -85,6 +85,9 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
     const styleUri = webview.asWebviewUri(vscode.Uri.file(
       path.join(this._context.extensionPath, 'dist', 'webview', 'nifti', 'index.css')
     ));
+    const codiconsUri = webview.asWebviewUri(vscode.Uri.file(
+      path.join(this._context.extensionPath, 'node_modules', '@vscode/codicons', 'dist', 'codicon.css')
+    ));
 
     const nonce = getNonce();
     const context = this._context;
@@ -98,6 +101,7 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
       .replace(/\$\{webview\.cspSource\}/g, webview.cspSource)
       .replace(/\$\{nonce\}/g, nonce)
       .replace(/\$\{styleUri\}/g, styleUri.toString())
+      .replace(/\$\{codiconsUri\}/g, codiconsUri.toString())
       .replace(/\$\{scriptUri\}/g, scriptUri.toString());
   }
 }

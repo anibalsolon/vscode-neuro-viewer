@@ -39,8 +39,8 @@ function getAxesSteps(header: NiftiHeader, axis: number) {
   };
 }
 
-type OverEvent = { position: [number, number, number], value: number }
-type OutEvent = {}
+type OverEvent = { position: [number, number, number], value: number };
+type OutEvent = Record<string, never>;
 
 type EventType = "over" | "out";
 type EventArgs = OverEvent | OutEvent;
@@ -55,11 +55,11 @@ export class RenderViewLayer extends EventEmitter<EventType, EventArgs> {
 
   protected _rendering: number[] = [-1, -1, -1, -1];
   protected _rendered: number[] = [-2, -2, -2, -2];
-  protected _max: number = 0;
+  protected _max = 0;
 
   on(event: "over", callback: EventCallback<OverEvent>): void;
   on(event: "out", callback: EventCallback<OutEvent>): void;
-  on(event: EventType, callback: any): void {
+  on(event: EventType, callback: any): void { // eslint-disable-line @typescript-eslint/no-explicit-any
     super.on(event, callback);
   }
 
@@ -122,8 +122,11 @@ export class RenderViewLayer extends EventEmitter<EventType, EventArgs> {
     if (!this.image || !this.canvas || !this.ctx) {
       return;
     }
-    if (slice === undefined) slice = this._rendered[2];
+    if (slice === undefined) slice = this._rendered[2] || 0;
     if (axis === undefined) axis = this._rendered[3];
+    if (slice < 0 || axis < 0) {
+      return;
+    }
     const { cols, rows } = getRowsCols(this.image.header, axis);
     const axesSteps = getAxesSteps(this.image.header, axis);
     let { cols_step, rows_step } = axesSteps;
@@ -137,7 +140,8 @@ export class RenderViewLayer extends EventEmitter<EventType, EventArgs> {
     this._rendering[2] = slice;
     this._rendering[3] = axis;
 
-    if (this._rendered[0] != this._rendering[0] || this._rendered[1] != this._rendering[1]) {
+    if (this._rendered[0] != this._rendering[0] ||
+        this._rendered[1] != this._rendering[1]) {
       this.canvas.width = cols;
       this.canvas.height = rows;
     }
@@ -162,7 +166,9 @@ export class RenderViewLayer extends EventEmitter<EventType, EventArgs> {
       this.canvas.style.left = `${css.left}px`;
     }
 
-    if (!this.data || this._rendered[0] != this._rendering[0] || this._rendered[1] != this._rendering[1]) {
+    if (!this.data ||
+        this._rendered[0] != this._rendering[0] ||
+        this._rendered[1] != this._rendering[1]) {
       this.data = this.ctx.createImageData(cols, rows);
     }
 
@@ -313,6 +319,8 @@ export class RenderView {
   image: NiftiImage;
   layers: RenderViewLayer[];
 
+  _size: [number, number] = [-1, -1];
+
   constructor(el: HTMLElement, image: NiftiImage, layers: RenderViewLayer[]) {
     this.el = {
       root: el,
@@ -327,11 +335,13 @@ export class RenderView {
     });
   }
 
-  // TODO consider using an object? or a new type
+  // TODO consider using an object for args? or a new type
   update(slice?: number, axis?: number, position?: [number, number, number] | null, value?: number | null) {
-    if (slice !== undefined && axis !== undefined) {
-      const [width, height] = [this.el.root.clientWidth, this.el.root.clientHeight];
+    const [width, height] = [this.el.root.clientWidth, this.el.root.clientHeight];
+    if ((slice !== undefined && axis !== undefined) || this._size[0] != width || this._size[1] != height) {
       this.layers.forEach(layer => layer.update({width, height}, slice, axis));
+      this._size[0] = width;
+      this._size[1] = height;
     }
     if (position !== undefined) {
       if (position !== null) {

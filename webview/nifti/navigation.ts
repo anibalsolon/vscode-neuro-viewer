@@ -1,3 +1,4 @@
+import { EventEmitter } from "../events";
 import { NiftiImage } from "./format";
 
 type SliceEvent = { slice: number; }
@@ -8,7 +9,7 @@ type EventType = "slice" | "axis" | "thumbnailSlice";
 type EventArgs = SliceEvent & AxisEvent & ThumbnailSliceEvent;
 type EventCallback<T> = (data: T) => void;
 
-export class NavigationView {
+export class NavigationView extends EventEmitter<EventType, EventArgs> {
 
   el: { 
     root: HTMLElement,
@@ -26,13 +27,8 @@ export class NavigationView {
   slices: number[];
   selectedSlice: number[];
 
-  callbacks: {
-    slice: EventCallback<SliceEvent>[],
-    axis: EventCallback<AxisEvent>[],
-    thumbnailSlice: EventCallback<ThumbnailSliceEvent>[],
-  };
-
   constructor(el: HTMLElement, image: NiftiImage) {
+    super();
     this.el = {
       root: el,
       axes: el.children[0] as HTMLElement,
@@ -47,27 +43,20 @@ export class NavigationView {
     this.axis = 0;
     this.slices = image.header.dimensions;
     this.selectedSlice = this.slices.map((s) => ~~(s / 2));
-    this.callbacks = {
-      slice: [],
-      axis: [],
-      thumbnailSlice: [],
-    };
   }
 
   on(event: "slice", callback: EventCallback<SliceEvent>): void;
   on(event: "axis", callback: EventCallback<AxisEvent>): void;
   on(event: "thumbnailSlice", callback: EventCallback<ThumbnailSliceEvent>): void;
   on(event: EventType, callback: any): void { // eslint-disable-line @typescript-eslint/no-explicit-any
-    this.callbacks[event].push(callback);
+    super.on(event, callback);
   }
 
   dispatch(event: "slice", data: SliceEvent): void;
   dispatch(event: "axis", data: AxisEvent): void;
   dispatch(event: "thumbnailSlice", data: ThumbnailSliceEvent): void;
   dispatch(event: EventType, data: EventArgs) {
-    this.callbacks[event].forEach(cb => {
-      cb(data);
-    });
+    super.dispatch(event, data);
   }
 
   render() {

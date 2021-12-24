@@ -5,25 +5,28 @@ import { message } from './message';
 import { NiftiImage } from './format';
 import { HistogramView } from './histogram';
 
-import { palettes } from './palettes';
+import { palettes, PalettesView } from './palettes';
 
 function prepareRender(ws: string, uuid: string, image: NiftiImage) {
 
   const mainEl = document.getElementById('main');
   const navigationEl = document.getElementById('tools');
+  const palettesEl = document.getElementById('palettes');
   const thumbnailEl = document.getElementById('thumbnail');
   const messageEl = document.getElementById('message');
   const histogramEl = document.getElementById('histogram');
 
-  if (!mainEl || !navigationEl || !thumbnailEl || !messageEl || !histogramEl) {
+  if (!mainEl || !navigationEl || !palettesEl || !thumbnailEl || !messageEl || !histogramEl) {
     return;
   }
 
   message(messageEl, 'Rendering');
 
-  const symmetric = image.header.values.min < 0;
-  const palette = symmetric ? palettes.bbr : palettes.bw;
+  const symmetric = image.header.values.min >= 0;
+  const palette = symmetric ? palettes.bw : palettes.bbr;
   const highlightPalette = palettes.highlight;
+
+  const palettesView = new PalettesView(palettesEl, palette);
 
   const histogramView = new HistogramView(
     histogramEl,
@@ -33,10 +36,18 @@ function prepareRender(ws: string, uuid: string, image: NiftiImage) {
     highlightPalette
   );
   const mainLayer = new HighlightRenderViewLayer(palette, highlightPalette);
+  const thumbnailLayer = new PaletteRenderViewLayer(palette);
 
   histogramView.on('select', ({ from, to }) => {
     mainLayer.setHighlight([from, to]);
     mainLayer.update();
+  });
+  histogramView.on('palette', ({ palette }) => {
+    mainLayer.setPalette(palette);
+    mainLayer.update();
+
+    thumbnailLayer.setPalette(palette);
+    thumbnailLayer.update();
   });
 
   const navigationView = new NavigationView(
@@ -46,16 +57,12 @@ function prepareRender(ws: string, uuid: string, image: NiftiImage) {
   const thumbnailView = new RenderView(
     thumbnailEl,
     image,
-    [
-      new PaletteRenderViewLayer(palette),
-    ]
+    [thumbnailLayer]
   );
   const renderView = new RenderView(
     mainEl,
     image,
-    [
-      mainLayer,
-    ]
+    [mainLayer]
   );
 
   mainLayer.on('over', ({ position, value }) => {
@@ -65,8 +72,19 @@ function prepareRender(ws: string, uuid: string, image: NiftiImage) {
     renderView.update(undefined, undefined, null, null);
   });
 
-  window.addEventListener('wheel', (e) => navigationView.setSliceDelta(Math.sign(e.deltaY)), false);
-  window.addEventListener('resize', () => renderView.update());
+  window.addEventListener('wheel', (e) => {
+    let el = e.target as HTMLElement;
+    while (el && el !== document.body && el.parentElement) {
+      if (el.id === 'palettes-popup') {
+        return;
+      }
+      el = el.parentElement;
+    }
+    navigationView.setSliceDelta(Math.sign(e.deltaY));
+  }, false);
+  window.addEventListener('resize', () => {
+    renderView.update();
+  });
 
   navigationView.on('axis', ({ axis }) => {
     renderView.update(navigationView.getSlice(), axis);
@@ -78,6 +96,25 @@ function prepareRender(ws: string, uuid: string, image: NiftiImage) {
     thumbnailView.update(slice, navigationView.getAxis());
   });
 
+  palettesView.on('palette', ({ palette }) => {
+    if (symmetric) {
+      palette = palette.toSymmetric();
+    } else {
+      palette = palette.toAsymmetric();
+    }
+
+    palettesView.setPalette(palette);
+    histogramView.setPalette(palette);
+    histogramView.update();
+
+    mainLayer.setPalette(palette);
+    mainLayer.update();
+
+    thumbnailLayer.setPalette(palette);
+    thumbnailLayer.update();
+  });
+
+  palettesView.render();
   renderView.render();
   thumbnailView.render();
   navigationView.render();

@@ -144,17 +144,17 @@ export class Normalizer extends Transform {
     super({ objectMode: true });
     this._min = min;
     this._max = max;
-    this._symmetric = oldmin < 0;
+    this._symmetric = oldmin >= 0;
     if (this._symmetric) {
-      this._diff = Math.max(Math.abs(this._min), Math.abs(this._max));
-      this._oldmin = 0;
-      this._oldmax = Math.max(Math.abs(oldmin), Math.abs(oldmax));
-      this._olddiff = this._oldmax;
-    } else {
       this._diff = Math.abs(this._max - this._min);
       this._oldmin = Math.min(oldmin, oldmax);
       this._oldmax = Math.max(oldmin, oldmax);
       this._olddiff = Math.abs(this._oldmax - this._oldmin);
+    } else {
+      this._diff = Math.max(Math.abs(this._min), Math.abs(this._max));
+      this._oldmin = 0;
+      this._oldmax = Math.max(Math.abs(oldmin), Math.abs(oldmax));
+      this._olddiff = this._oldmax;
     }
   }
 
@@ -162,12 +162,12 @@ export class Normalizer extends Transform {
     const _abs = Math.abs;
     for (let i = 0; i < chunk.length; i++) {
       if (this._symmetric) {
+        chunk[i] = (((chunk[i] - this._oldmin) * this._diff) / this._olddiff) + this._min;
+      } else {
         const sign = chunk[i] < 0 ? -1 : 1;
         chunk[i] = _abs(chunk[i]);
         chunk[i] = (((chunk[i] - this._oldmin) * this._diff) / this._olddiff) + this._min;
         chunk[i] *= sign;
-      } else {
-        chunk[i] = (((chunk[i] - this._oldmin) * this._diff) / this._olddiff) + this._min;
       }
     }
     this.push(chunk);

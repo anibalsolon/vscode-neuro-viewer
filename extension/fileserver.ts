@@ -55,7 +55,8 @@ export class FileServer {
       }
     } catch (error) {
       res.writeHead(500);
-      res.end(error);
+      console.error(error);
+      res.end("An internal server error occurred.");
     }
   }
 

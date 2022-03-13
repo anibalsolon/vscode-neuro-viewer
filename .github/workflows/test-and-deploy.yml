@@ -37,3 +37,13 @@ jobs:
       - run: git config --global user.email 'anibalsolon@gmail.com'
       - run: npm version patch -m "[RELEASE] %s"
       - run: git push
+
+      - run: |
+          [ -z "$PAT" ] && npm run vscode:vsce:publish "$PAT"
+        env:
+          PAT: ${{ secrets.VSCE_PAT }}
+
+      - run: |
+          [ -z "$PAT" ] && npm run vscode:ovsx:publish "$PAT"
+        env:
+          PAT: ${{ secrets.OVSX_PAT }}

@@ -7,7 +7,7 @@ on:
     branches:
       - develop
 
-name: Unit Testing
+name: Build
 jobs:
 
   test:

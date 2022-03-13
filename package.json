@@ -63,7 +63,7 @@
         "test:unit:grep": "mocha --grep",
         "test:unit:coverage": "nyc --no-clean npm run test:unit",
         "test:vscode": "tsc -p . --outDir .test_output && cp -R ./test/data ./.test_output/test && node ./.test_output/test/runTest.js",
-        "test:vscode:coverage": "nyc --no-clean npm run test:vscode",
+        "test:vscode:coverage": "nyc --no-clean npm run test:unit:coverage",
         "test:merge": "rm -f ./.nyc_output/coverage.json && nyc merge .nyc_output ./.nyc_output/coverage.json && nyc report",
         "lint": "eslint . --ext .ts",
         "lint:fix": "eslint . --ext .ts --fix",

@@ -35,7 +35,7 @@
             ]
         },
         {
-            "name": "Unit Tests",
+            "name": "Run Unit Tests",
             "type": "pwa-node",
             "request": "launch",
             "runtimeExecutable": "npm",

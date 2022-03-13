@@ -24,11 +24,11 @@ suite('webview.utils.ColorPalette', () => {
         [0.5]:  hexToRgb('#FF0000FF')
       }
     );
-    expect(palette.getColor(-1)).to.deep.equal([0, 0, 0, 0]);
+    expect(palette.getColor(-1)).to.deep.equal([0, 0, 255, 255]);
     expect(palette.getColor(-0.5)).to.deep.equal([0, 0, 255, 255]);
     expect(palette.getColor(0)).to.deep.equal([255, 255, 255, 255]);
     expect(palette.getColor(0.5)).to.deep.equal([255, 0, 0, 255]);
-    expect(palette.getColor(1)).to.deep.equal([0, 0, 0, 0]);
+    expect(palette.getColor(1)).to.deep.equal([255, 0, 0, 255]);
   });
   test('thresholded palette, symmetric', async () => {
     const palette = new ColorPalette(
@@ -38,12 +38,12 @@ suite('webview.utils.ColorPalette', () => {
         [0.75]:  hexToRgb('#FFFFFFFF')
       }
     );
-    expect(palette.getColor(-1)).to.deep.equal([0, 0, 0, 0]);
-    expect(palette.getColor(-0.5)).to.deep.equal([0, 0, 0, 0]);
-    expect(palette.getColor(0)).to.deep.equal([0, 0, 0, 0]);
+    expect(palette.getColor(-1)).to.deep.equal([0, 0, 0, 255]);
+    expect(palette.getColor(-0.5)).to.deep.equal([0, 0, 0, 255]);
+    expect(palette.getColor(0)).to.deep.equal([0, 0, 0, 255]);
     expect(palette.getColor(0.5)).to.deep.equal([0, 0, 0, 255]);
     expect(palette.getColor(0.75)).to.deep.equal([255, 255, 255, 255]);
-    expect(palette.getColor(1)).to.deep.equal([0, 0, 0, 0]);
+    expect(palette.getColor(1)).to.deep.equal([255, 255, 255, 255]);
   });
   test('asymm to symm palette', async () => {
     const palette = new ColorPalette(

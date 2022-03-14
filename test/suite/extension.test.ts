@@ -1,12 +1,20 @@
 import { expect } from 'chai';
-import * as vscode from 'vscode';
+import vscode from 'vscode';
+import path from 'path';
+import * as utils from '../../webview/utils';
 // import * as extension from '../../extension';
+// import { NiftiEditorProvider } from '../../extension/viewer';
 
 suite('Extension Test Suite', () => {
-  vscode.window.showInformationMessage('Start all tests.');
+  test('Sample test', async () => {
+    const ext = vscode.extensions.getExtension('vscode.nifti-viewer')
 
-  test('Sample test', () => {
-    expect(-1).to.equal([1, 2, 3].indexOf(5));
-    expect(-1).to.equal([1, 2, 3].indexOf(0));
+    const c1 = utils.hexToRgb('#ff0000');
+    expect(c1).to.deep.equal([255, 0, 0, 255]);
+
+    const uri = vscode.Uri.file(
+      path.join(__dirname + '/../data/custom.nii')
+    );
+
   });
 });

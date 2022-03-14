@@ -3,6 +3,12 @@
 <!-- (https://raw.githubusercontent.com/anibalsolon/vscode-neuro-viewer/main/neuro-viewer.png) -->
 <!-- (https://mattermost.brainhack.org/brainhack/channels/vscode-neuro-viewer) -->
 
+[![The MIT License](https://flat.badgen.net/badge/license/MIT/orange)](http://opensource.org/licenses/MIT)
+[![GitHub](https://flat.badgen.net/github/release/anibalsolon/vscode-neuro-viewer)](https://github.com/anibalsolon/vscode-neuro-viewer/releases)
+[![Visual Studio Marketplace](https://vsmarketplacebadge.apphb.com/installs-short/anibalsolon.neuro-viewer.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=anibalsolon.neuro-viewer)
+[![Coverage Status](https://coveralls.io/repos/github/anibalsolon/vscode-neuro-viewer/badge.svg?branch=develop)](https://coveralls.io/github/anibalsolon/vscode-neuro-viewer?branch=develop)
+![Build](https://github.com/anibalsolon/vscode-neuro-viewer/actions/workflows/test-and-deploy.yml/badge.svg?branch=main)
+
 If you got here, you might be familiar with Nifti files. In any case, Nifti is a file format for neuroimaging.
 This extension allows the user to visualize the volumetric data in Nifti files, and more features are coming!
 

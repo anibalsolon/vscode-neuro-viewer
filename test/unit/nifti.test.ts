@@ -3,9 +3,9 @@ import { expect } from 'chai';
 import { NiftiFactory, Nifti1, Nifti2, NiftiDataType } from '../../extension/formats/nifti';
 import { Normalizer } from '../../extension/utils';
 
-describe('Nifti Format', () => {
+suite('Nifti Format', () => {
 
-  it('should get the correct Nifti version', async () => {
+  test('should get the correct Nifti version', async () => {
     let fd, inst;
     fd = fs.openSync('test/data/custom.nii', 'r');
     inst = await NiftiFactory.build(fd);
@@ -42,7 +42,7 @@ describe('Nifti Format', () => {
       }
     }
   });
-  it('should give Nifti header', async () => {
+  test('should give Nifti header', async () => {
     const fd = fs.openSync('test/data/custom.nii', 'r');
     const nii = new Nifti1(fd);
     const header = await nii.header();
@@ -58,7 +58,7 @@ describe('Nifti Format', () => {
     ].toString());
     fs.closeSync(fd);
   });
-  it('should give Nifti header (gz)', async () => {
+  test('should give Nifti header (gz)', async () => {
     const fd = fs.openSync('test/data/custom.nii.gz', 'r');
     const nii = new Nifti1(fd);
     const header = await nii.header();
@@ -69,7 +69,7 @@ describe('Nifti Format', () => {
     fs.closeSync(fd);
   });
 
-  it('should give Nifti2 header', async () => {
+  test('should give Nifti2 header', async () => {
     const fd = fs.openSync('test/data/custom_v2.nii', 'r');
     const nii = new Nifti2(fd);
     const header = await nii.header();
@@ -86,7 +86,7 @@ describe('Nifti Format', () => {
     fs.closeSync(fd);
   });
 
-  it('bufferizing v1', async () => {
+  test('bufferizing v1', async () => {
     const fd = fs.openSync('test/data/custom.nii', 'r');
     const nii = new Nifti1(fd);
     const { values: { min, max } } = await nii.header();
@@ -104,7 +104,7 @@ describe('Nifti Format', () => {
     fs.closeSync(fd);
   });
 
-  it('bufferizing v2', async () => {
+  test('bufferizing v2', async () => {
     const fd = fs.openSync('test/data/custom_v2.nii', 'r');
     const nii = new Nifti2(fd);
     const { values: { min, max } } = await nii.header();
@@ -123,7 +123,7 @@ describe('Nifti Format', () => {
     fs.closeSync(fd);
   });
 
-  it('reading volumes', async () => {
+  test('reading volumes', async () => {
     const fd = fs.openSync('test/data/custom.nii', 'r');
     const nii = new Nifti1(fd);
     const stream = await nii.values(0, 1);
@@ -138,7 +138,7 @@ describe('Nifti Format', () => {
     fs.closeSync(fd);
   });
 
-  it('using pre-computed min/max', async () => {
+  test('using pre-computed min/max', async () => {
     const fd = fs.openSync('test/data/custom_minmax.nii', 'r');
     const nii = new Nifti1(fd);
     const { values: { min, max } } = await nii.header();

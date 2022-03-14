@@ -1,5 +1,10 @@
 {
-    "spec": "./test/unit/**/*.test.ts",
+    "ui": "tdd",
     "recursive": true,
-    "require": ["ts-node/register"]
+    "exit": true,
+    "require": ["ts-node/register", "source-map-support/register"],
+    "extension": ["ts"],
+    "exclude": [
+        "test/suite/**"
+    ]
 }

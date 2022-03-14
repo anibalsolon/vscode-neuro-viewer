@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { Bufferizer } from '../../extension/utils';
 
-describe('Bufferizer', () => {
-  it('should transform data into buffer', async () => {
+suite('Bufferizer', () => {
+  test('should transform data into buffer', async () => {
     const stream = new Bufferizer();
     stream.write([0, 10, 5, NaN]);
     stream.end();

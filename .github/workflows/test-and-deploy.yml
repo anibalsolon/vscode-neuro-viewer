@@ -7,7 +7,7 @@ on:
     branches:
       - develop
 
-name: Unit Testing
+name: Build
 jobs:
 
   test:
@@ -15,10 +15,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: npm install
+      - run: npm run clear
       - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-      - run: npm run test:vscode
+      - run: npm run test:vscode:coverage
         env:
           DISPLAY: ':99.0'
+      - run: npm run test:unit:coverage
+      - run: echo ${{ secrets.COVERALLS_TOKEN }} >> ./.coveralls.yml
+      - run: npm run test:merge
 
   deploy:
     if: github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, '[RELEASE]')
@@ -27,9 +31,19 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.GH_PAT }}
+          token: ${{ secrets.GH_TOKEN }}
       - run: npm install
       - run: git config --global user.name 'Anibal Solon'
       - run: git config --global user.email 'anibalsolon@gmail.com'
       - run: npm version patch -m "[RELEASE] %s"
       - run: git push
+
+      - run: |
+          [ -z "$PAT" ] && npm run vscode:vsce:publish "$PAT"
+        env:
+          PAT: ${{ secrets.VSCE_PAT }}
+
+      - run: |
+          [ -z "$PAT" ] && npm run vscode:ovsx:publish "$PAT"
+        env:
+          PAT: ${{ secrets.OVSX_PAT }}

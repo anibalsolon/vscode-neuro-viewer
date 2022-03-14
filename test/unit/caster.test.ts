@@ -3,8 +3,8 @@ import { expect } from 'chai';
 import { Nifti1 } from '../../extension/formats/nifti';
 import { Caster } from '../../extension/utils';
 
-describe('Caster', () => {
-  it('must parse Nifti data', async () => {
+suite('Caster', () => {
+  test('must parse Nifti data', async () => {
     const fd = fs.openSync('test/data/custom.nii', 'r');
     const nii = new Nifti1(fd);
     const header = await nii.header();

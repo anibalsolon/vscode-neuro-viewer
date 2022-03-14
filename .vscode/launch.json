@@ -12,6 +12,16 @@
             ]
         },
         {
+            "name": "Run Web Extension",
+            "type": "extensionHost",
+            "request": "launch",
+            "args": [
+                "${workspaceFolder}/data",
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--extensionDevelopmentKind=web"
+            ]
+        },
+        {
             "name": "Run Extension Tests",
             "type": "pwa-node",
             "request": "launch",
@@ -25,13 +35,13 @@
             ]
         },
         {
-            "name": "Unit Tests",
+            "name": "Run Unit Tests",
             "type": "pwa-node",
             "request": "launch",
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run",
-                "test:unittests",
+                "test:unit",
             ],
             "skipFiles": [
                 "<node_internals>/**"

@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import { Stepper } from '../../extension/utils';
 
-describe('Stepper', () => {
-  it('should step data', async () => {
+suite('Stepper', () => {
+  test('should step data', async () => {
     const step = 3;
     const slicer = new Stepper(step);
     slicer.write(Buffer.from('abcde'));
@@ -19,7 +19,7 @@ describe('Stepper', () => {
     }
     expect(res).to.equal('abcdefghijklmnopqrstuvwx');
   });
-  it('should fail on build', async () => {
+  test('should fail on build', async () => {
     try {
       new Stepper(-1);
     } catch (error) {

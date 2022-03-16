@@ -24,7 +24,7 @@ jobs:
       - run: rm -f ./.coveralls.yml
 
   deploy:
-    if: github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, '[RELEASE]')
+    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, '[RELEASE]')
     needs: [test]
     runs-on: ubuntu-latest
     steps:

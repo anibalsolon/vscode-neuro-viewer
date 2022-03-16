@@ -5,9 +5,9 @@
     "version": "0.0.11",
     "publisher": "anibalsolon",
     "author": {
-        "name" : "Anibal Solon",
-        "email" : "anibalsolon@gmail.com",
-        "url" : "https://anibalsolon.com/"
+        "name": "Anibal Solon",
+        "email": "anibalsolon@gmail.com",
+        "url": "https://anibalsolon.com/"
     },
     "engines": {
         "vscode": "^1.65.0"

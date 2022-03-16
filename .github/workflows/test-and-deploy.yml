@@ -17,12 +17,11 @@ jobs:
       - run: npm install
       - run: npm run clear
       - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-      - run: npm run test:vscode:coverage
-        env:
-          DISPLAY: ':99.0'
       - run: npm run test:unit:coverage
       - run: echo ${{ secrets.COVERALLS_TOKEN }} >> ./.coveralls.yml
-      - run: npm run test:merge
+      - run: npm run test:coverage
+        env:
+          DISPLAY: ':99.0'
 
   deploy:
     if: github.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, '[RELEASE]')

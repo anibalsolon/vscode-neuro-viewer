@@ -2,7 +2,7 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es2020",
-        "lib": ["es2020", "dom", "WebWorker"],
+        "lib": ["es2020", "dom"],
         "outDir": "dist",
         "rootDir": ".",
         "sourceMap": true,
@@ -12,7 +12,9 @@
     },
     "include": [
         "types/**/*.d.ts",
-        "src/**/*"
+        "extension/**/*",
+        "webview/**/*",
+        "test/**/*",
     ],
-    "exclude": ["node_modules", "dist", ".vscode-test"]
+    "exclude": ["node_modules", "dist", ".vscode-test", ".vscode-test-web", ".test_output", ".nyc_output"]
 }

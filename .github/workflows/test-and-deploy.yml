@@ -32,8 +32,8 @@ jobs:
         with:
           token: ${{ secrets.GH_TOKEN }}
       - run: npm install
-      - run: git config --global user.name 'Anibal Solon'
-      - run: git config --global user.email 'anibalsolon@gmail.com'
+      - run: git config --global user.name `jq -r '.author.name' package.json`
+      - run: git config --global user.email `jq -r '.author.email' package.json`
       - run: npm version patch -m "[RELEASE] %s"
       - run: git push
 

@@ -192,8 +192,8 @@ export abstract class Nifti {
   static read(buffer: Buffer, type: NiftiDataTypeBigInt, offset: number, endianness: 'BE' | 'LE'): bigint;
   static read(buffer: Buffer, type: NiftiDataType, offset: number, endianness: 'BE' | 'LE'): bigint | number {
 
-    const readBigInt64BEFn = buffer.readBigInt64BE ? buffer.readBigInt64BE : (offset: number) => readBigInt64BE(buffer, offset);
-    const readBigInt64LEFn = buffer.readBigInt64LE ? buffer.readBigInt64LE : (offset: number) => readBigInt64LE(buffer, offset);
+    const readBigInt64BEFn = buffer.readBigInt64BE ? buffer.readBigInt64BE.bind(buffer) : (offset: number) => readBigInt64BE(buffer, offset);
+    const readBigInt64LEFn = buffer.readBigInt64LE ? buffer.readBigInt64LE.bind(buffer) : (offset: number): bigint => readBigInt64LE(buffer, offset);
 
     switch (type) {
       case NiftiDataType.FLOAT64: return endianness === 'BE' ? buffer.readDoubleBE(offset) : buffer.readDoubleLE(offset);

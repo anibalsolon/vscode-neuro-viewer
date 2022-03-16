@@ -213,11 +213,20 @@ export class Bufferizer extends Transform {
 
 type CasterOptions = { scaling?: { slope: number, intercept: number } };
 
+// TODO should it be here?
+type ReadFunctions = 'readDoubleBE' | 'readDoubleLE' | 'readFloatBE' | 'readFloatLE' |
+                     'readInt16BE' | 'readInt16LE' | 'readInt32BE' | 'readInt32LE' |
+                     'readUInt16BE' | 'readUInt16LE' |
+                     'readUInt32BE' | 'readUInt32LE' |
+                    //  'readBigInt64BE' | 'readBigInt64LE' |
+                    //  'readBigInt64BE' | 'readBigInt64LE' |
+                     'readInt8' | 'readUInt8' | 'readUInt8';
+
 export class Caster extends Transform {
   private _type: string;
   private _endianness: string;
   private _options?: CasterOptions;
-  private _fn: string;
+  private _fn: ReadFunctions;
   private static _bytes: { [s: string]: number } = {
     'NONE': 0,
     'BINARY': 1,
@@ -247,7 +256,7 @@ export class Caster extends Transform {
   }
 
   // TODO move readBigInt64LE fn from base to here
-  private _readFunction(): string {
+  private _readFunction(): ReadFunctions {
     switch (this._type) {
       case 'FLOAT64': return this._endianness === 'BE' ? 'readDoubleBE' : 'readDoubleLE';
       case 'FLOAT32': return this._endianness === 'BE' ? 'readFloatBE' : 'readFloatLE';

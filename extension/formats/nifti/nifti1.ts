@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { Nifti, NiftiDataType } from './base';
 
 export class Nifti1 extends Nifti {

@@ -2,12 +2,17 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es2020",
-        "lib": ["es2020", "dom"],
+        "lib": ["es2020", "dom", "WebWorker"],
         "outDir": "dist",
         "rootDir": ".",
         "sourceMap": true,
         "esModuleInterop": true,
         "strict": true,
+        "typeRoots": ["./types", "./node_modules/@types"]
     },
+    "include": [
+        "types/**/*.d.ts",
+        "src/**/*"
+    ],
     "exclude": ["node_modules", "dist", ".vscode-test"]
 }

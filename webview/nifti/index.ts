@@ -72,7 +72,6 @@ function prepareRender(ws: string, uuid: string, image: NiftiImage) {
   mainLayer.on('out', () => {
     renderView.update(undefined, undefined, null, null);
   });
-
   window.addEventListener('wheel', (e) => {
     let el = e.target as HTMLElement;
     while (el && el !== document.body && el.parentElement) {
@@ -83,6 +82,7 @@ function prepareRender(ws: string, uuid: string, image: NiftiImage) {
     }
     navigationView.setSliceDelta(Math.sign(e.deltaY));
   }, false);
+
   window.addEventListener('resize', () => {
     renderView.update();
   });
@@ -132,6 +132,7 @@ window.addEventListener('message', async (e) => {
         const ws = body.ws;
         const uuid = body.uuid;
         const header = body.header;
+        let data = body.data;
 
         const infoEl = document.getElementById('info');
         if (!infoEl) {
@@ -147,9 +148,11 @@ window.addEventListener('message', async (e) => {
         
         message(messageEl, 'Loading');
 
-        const res = await fetch(`${ws}${uuid}`);
-        const image = await res.arrayBuffer();
-        const data = new Int16Array(image);
+        if (!data) {
+          const res = await fetch(`${ws}${uuid}`);
+          const image = await res.arrayBuffer();
+          data = new Int16Array(image);
+        }
         prepareRender(ws, uuid, { header, data });
       }
       break;

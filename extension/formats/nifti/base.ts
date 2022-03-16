@@ -1,6 +1,7 @@
+import zlib from 'zlib';
 import { Readable } from 'stream';
-import * as zlib from 'zlib';
-import { Slicer, Stepper, Caster, createReadableStream, awaitReadableStream, isGzipped } from '../../utils';
+import { Buffer } from 'buffer';
+import { FileReference, Slicer, Stepper, Caster, createReadableStream, awaitReadableStream, isGzipped } from '../../fs-utils';
 
 export enum NiftiDataType {
     NONE = 'NONE',
@@ -100,9 +101,56 @@ export interface NiftiHeader {
     qOffset: { x: number, y: number, z: number },
 }
 
+function getFirstAndLast(
+  buffer: Buffer,
+  offset: number,
+): { first: number; last: number } {
+  const first = buffer[offset] as number | undefined;
+  const last = buffer[offset + 7] as number | undefined;
+  return { first: first || 0, last: last || 0 };
+}
+
+function readBigInt64BE(buffer: Buffer, offset = 0): bigint {
+  const { first, last } = getFirstAndLast(buffer, offset);
+
+  const val =
+      (first << 24) + // Overflow
+      buffer[++offset] * 2 ** 16 +
+      buffer[++offset] * 2 ** 8 +
+      buffer[++offset];
+  return (
+    (BigInt(val) << BigInt(32)) +
+      BigInt(
+        buffer[++offset] * 2 ** 24 +
+              buffer[++offset] * 2 ** 16 +
+              buffer[++offset] * 2 ** 8 +
+              last,
+      )
+  );
+}
+
+function readBigInt64LE(buffer: Buffer, offset = 0): bigint {
+  const { first, last } = getFirstAndLast(buffer, offset);
+
+  const val =
+      buffer[offset + 4] +
+      buffer[offset + 5] * 2 ** 8 +
+      buffer[offset + 6] * 2 ** 16 +
+      (last << 24); // Overflow
+  return (
+    (BigInt(val) << BigInt(32)) +
+      BigInt(
+        first +
+              buffer[++offset] * 2 ** 8 +
+              buffer[++offset] * 2 ** 16 +
+              buffer[++offset] * 2 ** 24,
+      )
+  );
+}
+
 export abstract class Nifti {
 
-  protected readonly _fd: number;
+  protected readonly _fd: FileReference;
   protected readonly _gzipped: boolean;
 
   protected _endianness: 'BE' | 'LE' = 'BE';
@@ -111,18 +159,18 @@ export abstract class Nifti {
   protected static HEADER_SIZE = 348;
   protected static MAGIC_COOKIE = 348;
 
-  constructor (fd: number) {
+  constructor (fd: FileReference) {
     this._fd = fd;
     this._gzipped = isGzipped(fd);
   }
 
-  public static async readStream(fd: number, offset: number, length?: number, steps?: number, gzipped?: boolean): Promise<NodeJS.ReadableStream> {
+  public static async readStream(fd: FileReference, offset: number, length?: number, steps?: number, gzipped?: boolean): Promise<Readable> {
     if (gzipped === undefined) {
       gzipped = isGzipped(fd);
     }
-    const stream = await createReadableStream('', { fd, start: 0, autoClose: false });
+    const stream = await createReadableStream(fd, { start: 0, autoClose: false });
     const slicer = new Slicer(offset, length);
-    let pipe: NodeJS.ReadableStream;
+    let pipe: Readable;
     if (gzipped) {
       const decompressStream = zlib.createGunzip();
       pipe = stream.pipe(decompressStream).pipe(slicer);
@@ -136,22 +184,26 @@ export abstract class Nifti {
     return pipe;
   }
 
-  private async readStream(offset: number, length?: number, steps?: number, gzipped?: boolean): Promise<NodeJS.ReadableStream> {
+  private async readStream(offset: number, length?: number, steps?: number, gzipped?: boolean): Promise<Readable> {
     return Nifti.readStream(this._fd, offset, length, steps, gzipped);
   }
 
   static read(buffer: Buffer, type: NiftiDataTypeNumber, offset: number, endianness: 'BE' | 'LE'): number;
   static read(buffer: Buffer, type: NiftiDataTypeBigInt, offset: number, endianness: 'BE' | 'LE'): bigint;
   static read(buffer: Buffer, type: NiftiDataType, offset: number, endianness: 'BE' | 'LE'): bigint | number {
+
+    const readBigInt64BEFn = buffer.readBigInt64BE ? buffer.readBigInt64BE : (offset: number) => readBigInt64BE(buffer, offset);
+    const readBigInt64LEFn = buffer.readBigInt64LE ? buffer.readBigInt64LE : (offset: number) => readBigInt64LE(buffer, offset);
+
     switch (type) {
       case NiftiDataType.FLOAT64: return endianness === 'BE' ? buffer.readDoubleBE(offset) : buffer.readDoubleLE(offset);
       case NiftiDataType.FLOAT32: return endianness === 'BE' ? buffer.readFloatBE(offset) : buffer.readFloatLE(offset);
       case NiftiDataType.INT16: return endianness === 'BE' ? buffer.readInt16BE(offset) : buffer.readInt16LE(offset);
       case NiftiDataType.INT32: return endianness === 'BE' ? buffer.readInt32BE(offset) : buffer.readInt32LE(offset);
-      case NiftiDataType.INT64: return endianness === 'BE' ? buffer.readBigInt64BE(offset) : buffer.readBigInt64LE(offset);
+      case NiftiDataType.INT64: return endianness === 'BE' ? readBigInt64BEFn(offset) : readBigInt64LEFn(offset);
       case NiftiDataType.UINT16: return endianness === 'BE' ? buffer.readUInt16BE(offset) : buffer.readUInt16LE(offset);
       case NiftiDataType.UINT32: return endianness === 'BE' ? buffer.readUInt32BE(offset) : buffer.readUInt32LE(offset);
-      case NiftiDataType.UINT64: return endianness === 'BE' ? buffer.readBigInt64BE(offset) : buffer.readBigInt64LE(offset);
+      case NiftiDataType.UINT64: return endianness === 'BE' ? readBigInt64BEFn(offset) : readBigInt64LEFn(offset);
       case NiftiDataType.INT8: return buffer.readInt8(offset);
       case NiftiDataType.UINT8: return buffer.readUInt8(offset);
     }
@@ -236,8 +288,10 @@ export abstract class Nifti {
         const _min = Math.min;
         const _max = Math.max;
         for await (const chunk of values) {
-          vmin = _min(vmin, _min(...chunk));
-          vmax = _max(vmax, _max(...chunk));
+          for (const value of chunk) {
+            vmin = _min(vmin, value);
+            vmax = _max(vmax, value);
+          }
         }
         this._header.values.min = vmin;
         this._header.values.max = vmax;
@@ -249,12 +303,12 @@ export abstract class Nifti {
       return this._header;
     }
 
-    async data(volumeOffset = 0, volumes?: number): Promise<NodeJS.ReadableStream> {
+    async data(volumeOffset = 0, volumes?: number): Promise<Readable> {
       const { dataType, dataOffset, dataBits, dimensions } = await this.header();
       const readingStep = NiftiDataType.bytes(dataType);
       const volumeSize = dimensions[0] * dimensions[1] * dimensions[2] * (dataBits / 8);
-
       const offset = dataOffset + volumeSize * volumeOffset;
+
       const stream = await this.readStream(
         offset,
         volumes !== undefined ? volumeSize * volumes : undefined,
@@ -266,26 +320,26 @@ export abstract class Nifti {
     async values(volumeOffset = 0, volumes?: number): Promise<Readable> {
       const { dataType, endianness, values: { scaling: { slope, intercept } } } = await this.header();
       const stream = await this.data(volumeOffset, volumes);
-      return stream.pipe(new Caster(dataType, endianness, { 
-        scaling: { slope, intercept },
-      }));
+      return stream
+        .pipe(new Caster(dataType, endianness, { 
+          scaling: { slope, intercept },
+        }));
     }
 
-    static async version(fd: number): Promise<1 | 2> {
+    static async version(fd: FileReference): Promise<1 | 2> {
       const N1_MAGIC_NUMBER_LOCATION = 344;
       const N1_MAGIC_NUMBER = [0x6E, 0x2B, 0x31];
 
       const stream = await Nifti.readStream(fd, 0, Nifti.HEADER_SIZE);
       const buffer = <Buffer> stream.read(Nifti.HEADER_SIZE);
-
       if (buffer === null) {
         throw Error('Invalid file format');
       }
 
       if (
         (Nifti.read(buffer, NiftiDataType.UINT8, N1_MAGIC_NUMBER_LOCATION, 'LE') === N1_MAGIC_NUMBER[0]) &&
-            (Nifti.read(buffer, NiftiDataType.UINT8, N1_MAGIC_NUMBER_LOCATION + 1, 'LE') === N1_MAGIC_NUMBER[1]) &&
-            (Nifti.read(buffer, NiftiDataType.UINT8, N1_MAGIC_NUMBER_LOCATION + 2, 'LE') === N1_MAGIC_NUMBER[2])
+        (Nifti.read(buffer, NiftiDataType.UINT8, N1_MAGIC_NUMBER_LOCATION + 1, 'LE') === N1_MAGIC_NUMBER[1]) &&
+        (Nifti.read(buffer, NiftiDataType.UINT8, N1_MAGIC_NUMBER_LOCATION + 2, 'LE') === N1_MAGIC_NUMBER[2])
       ) {
         return 1;
       }
@@ -295,8 +349,8 @@ export abstract class Nifti {
 
       if (
         (Nifti.read(buffer, NiftiDataType.UINT8, N2_MAGIC_NUMBER_LOCATION, 'LE') === N2_MAGIC_NUMBER[0]) &&
-            (Nifti.read(buffer, NiftiDataType.UINT8, N2_MAGIC_NUMBER_LOCATION + 1, 'LE') === N2_MAGIC_NUMBER[1]) &&
-            (Nifti.read(buffer, NiftiDataType.UINT8, N2_MAGIC_NUMBER_LOCATION + 2, 'LE') === N2_MAGIC_NUMBER[2])
+        (Nifti.read(buffer, NiftiDataType.UINT8, N2_MAGIC_NUMBER_LOCATION + 1, 'LE') === N2_MAGIC_NUMBER[1]) &&
+        (Nifti.read(buffer, NiftiDataType.UINT8, N2_MAGIC_NUMBER_LOCATION + 2, 'LE') === N2_MAGIC_NUMBER[2])
       ) {
         return 2;
       }

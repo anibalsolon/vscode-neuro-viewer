@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { expect } from 'chai';
 import { NiftiFactory, Nifti1, Nifti2, NiftiDataType } from '../../extension/formats/nifti';
-import { Normalizer } from '../../extension/utils';
+import { Normalizer } from '../../extension/fs-utils';
 
 suite('Nifti Format', () => {
 

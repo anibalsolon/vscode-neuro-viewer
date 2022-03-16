@@ -1,5 +1,5 @@
 export type Color = [number, number, number, number];
-export type ColorIntervals = {[key: number]: Color}; // @TODO do not store as map, but two arrays
+export type ColorIntervals = {[key: number]: Color}; // TODO do not store as map, but two arrays
 
 export function hexToRgb(hex: string): Color {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})?$/i.exec(hex);

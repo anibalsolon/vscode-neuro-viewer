@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { expect } from 'chai';
 import { Nifti1 } from '../../extension/formats/nifti';
-import { Caster } from '../../extension/utils';
+import { Caster } from '../../extension/fs-utils';
 
 suite('Caster', () => {
   test('must parse Nifti data', async () => {

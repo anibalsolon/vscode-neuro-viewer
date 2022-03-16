@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Slicer } from '../../extension/utils';
+import { Slicer } from '../../extension/fs-utils';
 
 suite('Slicer', () => {
   test('should slice data', async () => {

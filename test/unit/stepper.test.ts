@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Stepper } from '../../extension/utils';
+import { Stepper } from '../../extension/fs-utils';
 
 suite('Stepper', () => {
   test('should step data', async () => {

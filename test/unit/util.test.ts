@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { round, ensureBuffer } from '../../extension/utils';
+import { round, ensureBuffer } from '../../extension/fs-utils';
 
 suite('Util', () => {
   test('fast round', async () => {

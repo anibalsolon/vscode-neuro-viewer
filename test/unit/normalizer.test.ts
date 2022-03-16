@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Normalizer } from '../../extension/utils';
+import { Normalizer } from '../../extension/fs-utils';
 
 suite('Normalizer', () => {
   test('should normalize (!) data', async () => {

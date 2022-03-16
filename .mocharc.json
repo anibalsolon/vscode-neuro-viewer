@@ -4,7 +4,5 @@
     "exit": true,
     "require": ["ts-node/register", "source-map-support/register"],
     "extension": ["ts"],
-    "exclude": [
-        "test/suite/**"
-    ]
+    "spec": "./test/unit/**"
 }

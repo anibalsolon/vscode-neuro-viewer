@@ -2,6 +2,7 @@ import { AddressInfo } from 'net';
 import * as http from 'http';
 import * as vscode from 'vscode';
 import { NiftiDocument } from './document';
+import { Bufferizer } from './fs-utils';
 
 export class FileServer {
 
@@ -37,7 +38,9 @@ export class FileServer {
 
         const data = await this._documents[url].data(0, 1);
         res.writeHead(200);
-        data.pipe(res, { end: false });
+        data
+          .pipe(new Bufferizer())
+          .pipe(res, { end: false });
         await new Promise<void>((resolve, reject) => {
           data.once('end', () => {
             res.end();

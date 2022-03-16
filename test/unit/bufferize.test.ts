@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { Bufferizer } from '../../extension/utils';
+import { Bufferizer } from '../../extension/fs-utils';
 
 suite('Bufferizer', () => {
   test('should transform data into buffer', async () => {

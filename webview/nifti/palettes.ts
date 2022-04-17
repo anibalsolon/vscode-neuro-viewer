@@ -4,7 +4,7 @@ import { hexToRgb, ensureHex, ColorPalette } from '../utils';
 const documentElement = getComputedStyle(document.documentElement);
 
 export const colors = {
-  light: hexToRgb(ensureHex('rgba(89, 152, 192, 0.93)')),
+  light: hexToRgb(ensureHex(documentElement.getPropertyValue('--vscode-editor-foreground'))),
   dark: hexToRgb(ensureHex(documentElement.getPropertyValue('--vscode-editor-background'))),
   highlight: hexToRgb(ensureHex(documentElement.getPropertyValue('--vscode-minimap-findMatchHighlight'))),
 };

@@ -102,6 +102,11 @@ canvas {
 
 #info > table {
     width: 100%;
+    user-select: text;
+}
+
+#info > table td {
+    user-select: text;
 }
 
 #tools {

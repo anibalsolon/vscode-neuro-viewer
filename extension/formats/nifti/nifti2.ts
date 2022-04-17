@@ -55,12 +55,31 @@ export class Nifti2 extends Nifti {
     return affine;
   }
 
+  // @TODO
+  protected _formCodes(buffer: Buffer): { qForm?: string, sForm?: string } {
+    return { qForm: 'UNKNOWN', sForm: 'UNKNOWN' };
+  }
+
+  // @TODO
+  protected _quatern(buffer: Buffer): { b: number, c: number, d: number } {
+    return {
+      b: this.read(buffer, NiftiDataType.FLOAT32, 172),
+      c: this.read(buffer, NiftiDataType.FLOAT32, 204),
+      d: this.read(buffer, NiftiDataType.FLOAT32, 236),
+    };
+  }
+
   protected _qOffset(buffer: Buffer): { x: number, y: number, z: number } {
     return {
       x: this.read(buffer, NiftiDataType.FLOAT64, 376),
       y: this.read(buffer, NiftiDataType.FLOAT64, 384),
       z: this.read(buffer, NiftiDataType.FLOAT64, 392),
     };
+  }
+
+  // @TODO
+  protected _intentName(buffer: Buffer): string {
+    return "";
   }
 
   protected _dataInfo(buffer: Buffer) {

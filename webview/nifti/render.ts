@@ -20,9 +20,9 @@ function getAxesSteps(header: NiftiHeader, axis: number) {
   const { cols, axis: axes } = getRowsCols(header, 1);
 
   const direction = [
-    header.qOffset.x > 0 ? 1 : -1,
-    header.qOffset.y > 0 ? 1 : -1,
-    header.qOffset.z > 0 ? 1 : -1,
+    header.orientation[0] * -1,
+    header.orientation[1],
+    header.orientation[2] * -1,
   ];
 
   const steps = [

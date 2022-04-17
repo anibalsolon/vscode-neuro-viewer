@@ -24,6 +24,17 @@ export function rgbToHex([r, g, b, a]: Color): string {
   return '#' + (0x1000000 + ((r << 16) | (g << 8) | (b << 0))).toString(16).slice(1) + alpha;
 }
 
+const hexCanvas = document.createElement('canvas');
+hexCanvas.height = 1;
+hexCanvas.width = 1;
+const hexCtx = hexCanvas.getContext('2d')!;
+export function ensureHex(color: string): string {
+  hexCtx.fillStyle = color;
+  hexCtx.fillRect(0, 0, 1, 1);
+  const imageData = hexCtx.getImageData(0, 0, 1, 1).data;
+  return rgbToHex([imageData[0], imageData[1], imageData[2], imageData[3]]);
+}
+
 export function lerp(c1: Color, c2: Color, ratio: number): Color {
   if (ratio >= 1) {
     return c2;

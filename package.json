@@ -46,6 +46,7 @@
             {
                 "viewType": "neuro-viewer.Nifti",
                 "displayName": "Nifti Viewer",
+                "priority": "default",
                 "selector": [
                     {
                         "filenamePattern": "*.nii"

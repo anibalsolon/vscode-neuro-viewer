@@ -14,15 +14,19 @@ jobs:
     if: "!startsWith(github.event.head_commit.message, '[RELEASE]')"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: npm install
-      - run: npm run clear
-      - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
-      - run: echo ${{ secrets.COVERALLS_TOKEN }} >> ./.coveralls.yml
-      - run: npm run test:coverage
+      # - uses: actions/checkout@v2
+      # - run: npm install
+      # - run: npm run clear
+      # - run: /usr/bin/Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+      # - run: echo ${{ secrets.COVERALLS_TOKEN }} >> ./.coveralls.yml
+      # - run: npm run test:coverage
+      #   env:
+      #     DISPLAY: ':99.0'
+      # - run: rm -f ./.coveralls.yml
+      - name: Dump event context
         env:
-          DISPLAY: ':99.0'
-      - run: rm -f ./.coveralls.yml
+          GITHUB_CONTEXT: ${{ toJson(github.event) }}
+        run: echo "$GITHUB_CONTEXT"
 
   deploy:
     if: github.event.base_ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, '[RELEASE]')

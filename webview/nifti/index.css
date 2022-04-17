@@ -99,15 +99,6 @@ canvas {
     text-align: center;
     font-size: 1.4em;
     font-weight: bold;
-    /* text-shadow: 2px 2px 0 #000,
-                 2px -2px 0 #000,
-                 -2px 2px 0 #000,
-                 -2px -2px 0 #000,
-                 2px 0px 0 #000,
-                 0px 2px 0 #000,
-                 -2px 0px 0 #000,
-                 0px -2px 0 #000; */
-    
     display: flex;
     align-items: center;
     justify-content: center;

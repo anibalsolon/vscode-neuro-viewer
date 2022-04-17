@@ -2,65 +2,67 @@
 
 ### [0.0.13]
 
-Adjusts colors for high contrast themes
-Reintroduces loading message for web extension
+* Adjusts colors for high contrast themes
+* Reintroduces loading message for web extension
 
 ### [0.0.12]
 
-Introduces web-extension
-Fixes related to VSCode theme color, thanks to [@astewartau](https://github.com/astewartau) report
-Fixes image orientation, computing from affine
-Fixes geometry string to look more like AFNI
+* Introduces web-extension
+* Fixes related to VSCode theme color, thanks to [@astewartau](https://github.com/astewartau) report
+* Fixes image orientation, computing from affine
+* Fixes geometry string to look more like AFNI
 
 ### [0.0.11]
 
-Introduces color palletes
-Introduces palette color range in histogram
-Fixes color for negative values, thanks to [@Linus4world](https://github.com/Linus4world) report
+* Introduces color palletes
+* Introduces palette color range in histogram
+* Fixes color for negative values, thanks to [@Linus4world](https://github.com/Linus4world) report
+* Rewrites webview code in TypeScript
+* Modularizes code
 
 ### [0.0.10]
 
-Introduces histogram
-Introduces highlighting
+* Introduces histogram
+* Introduces highlighting
 
 ### [0.0.9]
 
-No change, just house cleaning.
+* No change, just house cleaning.
 
 ### [0.0.8]
 
-No change, just house cleaning.
+* No change, just house cleaning.
 
 ### [0.0.7]
 
-Nifti loading overhaul- remove nifti-reader-js and use optimized and type-safe methods. Use streams to serve data, instead of loading the whole file in memory.
-Add volume to endpoint, allowing to future fMRI support.
-Add unit tests.
-Small UI fixes.
+* Nifti loading overhaul- remove nifti-reader-js and use optimized and type-safe methods. Use streams to serve data, instead of loading the whole file in memory.
+* Add volume to endpoint, allowing to future fMRI support.
+* Add unit tests.
+* Small UI fixes.
 
 ### [0.0.6]
 
-Add slice slider + thumbnail, axis selector, and reworking to allow different data orientations.
+* Add slice slider + thumbnail, axis selector, and reworking to allow different data orientations.
 
 ### [0.0.5]
 
-Icon and some metadata. Keep it pretty!
+* Icon and some metadata. Keep it pretty!
 
 ### [0.0.4]
 
-Update release notes!
-Add loading message.
+* Update release notes!
+* Add loading message.
 
 ### [0.0.3]
 
-Code organizing;
-Preprocessing images on loading;
-Handling different pixel resolutions.
+* Code organizing;
+* Preprocessing images on loading;
+* Handling different pixel resolutions.
 
 ### [0.0.2]
 
-Some metadata updates.
+* Some metadata updates.
 
 ### [0.0.1]
 
-New extension on the block.
+* New extension on the block.

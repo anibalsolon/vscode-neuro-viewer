@@ -4,6 +4,10 @@
     user-select: none;
 }
 
+html {
+    background: var(--vscode-panel-background);
+}
+
 html, body {
     margin: 1em; padding: 0;
     overflow: hidden;
@@ -36,11 +40,13 @@ th, td {
 }
 
 td {
+    color: var(--vscode-menu-foreground);
     background: var(--vscode-menu-background);
 }
 
 th {
     background: var(--vscode-activityBar-background);
+    color: var(--vscode-activityBar-foreground);
 }
 
 #canvas {
@@ -93,22 +99,22 @@ canvas {
     text-align: center;
     font-size: 1.4em;
     font-weight: bold;
-    text-shadow: 2px 2px 0 #000,
-                 2px -2px 0 #000,
-                 -2px 2px 0 #000,
-                 -2px -2px 0 #000,
-                 2px 0px 0 #000,
-                 0px 2px 0 #000,
-                 -2px 0px 0 #000,
-                 0px -2px 0 #000;
     display: flex;
     align-items: center;
     justify-content: center;
+    color: var(--vscode-menu-foreground);
+}
+
+#message:empty {
+    display: none;
 }
 
 #info > table {
     width: 100%;
     user-select: text;
+}
+body[data-vscode-theme-kind="vscode-high-contrast"] #info > table {
+    border: 1px solid var(--vscode-menu-foreground);
 }
 
 #info > table td {
@@ -132,27 +138,43 @@ canvas {
     text-align: center;
     padding: 7px;
     background: var(--vscode-menu-background);
+    color: var(--vscode-menu-foreground);
 }
 #axes > div[data-selected] {
-    background: var(--vscode-activityBar-background);
+    color: var(--vscode-activityBar-background);
+    background: var(--vscode-activityBar-foreground);
     font-weight: bold;
+}
+
+body[data-vscode-theme-kind="vscode-high-contrast"] #axes > div {
+    border: 1px solid var(--vscode-menu-foreground);
+    border-width: 1px 1px 0 1px;
+}
+body[data-vscode-theme-kind="vscode-high-contrast"] #axes > div:last-child {
+    border-width: 1px;
 }
 
 #slicer {
     display: flex;
     flex-direction: column;
     flex-grow: 1;
-    background: var(--vscode-menu-background);
+    background: var(--vscode-sideBar-background);
     padding-bottom: 0.5em;
+}
+body[data-vscode-theme-kind="vscode-high-contrast"] #slicer {
+    border: 1px solid var(--vscode-menu-foreground);
 }
 
 #slice {
-    color: #FFF;
+    color: var(--vscode-activityBar-foreground);
     padding: 10px 0;
     text-align: center;
     font-weight: bold;
     background: var(--vscode-activityBar-background);
     margin-bottom: 0.5em;
+}
+body[data-vscode-theme-kind="vscode-high-contrast"] #slice {
+    border-bottom: 1px solid var(--vscode-menu-foreground);
 }
 
 #range {
@@ -184,6 +206,12 @@ canvas {
     border-width: 1em;
     margin-top: -1em;
 }
+body[data-vscode-theme-kind="vscode-high-contrast"] #position {
+    background: var(--vscode-menu-foreground);
+}
+body[data-vscode-theme-kind="vscode-high-contrast"] #position::before {
+    border-left-color: var(--vscode-menu-foreground);
+}
 
 #thumbnail {
     display: none;
@@ -194,6 +222,10 @@ canvas {
     height: 5em;
     background: var(--vscode-menu-background);
 }
+body[data-vscode-theme-kind="vscode-high-contrast"] #thumbnail {
+    border: 1px solid var(--vscode-menu-foreground);
+}
+
 
 #canvas_thumbnail {
     height: 100%;
@@ -201,11 +233,16 @@ canvas {
     border: 1px solid var(--vscode-menu-background);
 }
 
+
+
 #palettes {
     background: var(--vscode-menu-background);
     text-align: center;
     margin-top: 5px;
     position: relative;
+}
+body[data-vscode-theme-kind="vscode-high-contrast"] #palettes {
+    border: 1px solid var(--vscode-menu-foreground);
 }
 #palettes-button {
     padding: 7px;
@@ -251,12 +288,17 @@ canvas {
     padding: 0.25em;
 }
 
+
 #histogram {
     width: 5em;
     margin-left: 0.3em;
     margin-bottom: 0.5em;
     background: var(--vscode-menu-background);
     position: relative;
+    z-index: 2000;
+}
+body[data-vscode-theme-kind="vscode-high-contrast"] #histogram {
+    border: 1px solid var(--vscode-menu-foreground);
 }
 #histogram > div.bins {
     position: absolute;
@@ -305,7 +347,7 @@ canvas {
     background-color: var(--vscode-activityBar-background);
     pointer-events: all;
 }
-#histogram > div.thumbs > div:before {
+#histogram > div.thumbs > div::before {
     content: "";
     top: 15%;
     left: 15%;
@@ -314,7 +356,7 @@ canvas {
     position: absolute;
     background-color: var(--main-color);
 }
-#histogram > div.thumbs > div:after {
+#histogram > div.thumbs > div::after {
     left: 100%;
     top: 50%;
     border: solid transparent;
@@ -326,4 +368,10 @@ canvas {
     border-left-color: var(--vscode-activityBar-background);
     border-width: 0.75em;
     margin-top: -0.75em;
+}
+body[data-vscode-theme-kind="vscode-high-contrast"] #histogram > div.thumbs > div {
+    background: var(--vscode-menu-foreground);
+}
+body[data-vscode-theme-kind="vscode-high-contrast"] #histogram > div.thumbs > div::after {
+    border-left-color: var(--vscode-menu-foreground);
 }

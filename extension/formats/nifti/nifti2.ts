@@ -55,12 +55,12 @@ export class Nifti2 extends Nifti {
     return affine;
   }
 
-  // @TODO
+  // TODO
   protected _formCodes(buffer: Buffer): { qForm?: string, sForm?: string } {
     return { qForm: 'UNKNOWN', sForm: 'UNKNOWN' };
   }
 
-  // @TODO
+  // TODO
   protected _quatern(buffer: Buffer): { b: number, c: number, d: number } {
     return {
       b: this.read(buffer, NiftiDataType.FLOAT32, 172),
@@ -77,7 +77,7 @@ export class Nifti2 extends Nifti {
     };
   }
 
-  // @TODO
+  // TODO
   protected _intentName(buffer: Buffer): string {
     return "";
   }

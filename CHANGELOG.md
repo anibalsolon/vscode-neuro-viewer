@@ -8,7 +8,7 @@ Reintroduces loading message for web extension
 ### [0.0.12]
 
 Introduces web-extension
-Fixes related to VSCode theme color
+Fixes related to VSCode theme color, thanks to [@astewartau](https://github.com/astewartau) report
 Fixes image orientation, computing from affine
 Fixes geometry string to look more like AFNI
 
@@ -16,7 +16,7 @@ Fixes geometry string to look more like AFNI
 
 Introduces color palletes
 Introduces palette color range in histogram
-Fixes color for negative values
+Fixes color for negative values, thanks to [@Linus4world](https://github.com/Linus4world) report
 
 ### [0.0.10]
 

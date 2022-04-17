@@ -1,5 +1,32 @@
 # Change Log
 
+### [0.0.13]
+
+Adjusts colors for high contrast themes
+Reintroduces loading message for web extension
+
+### [0.0.12]
+
+Introduces web-extension
+Fixes related to VSCode theme color
+Fixes image orientation, computing from affine
+Fixes geometry string to look more like AFNI
+
+### [0.0.11]
+
+Introduces color palletes
+Introduces palette color range in histogram
+Fixes color for negative values
+
+### [0.0.10]
+
+Introduces histogram
+Introduces highlighting
+
+### [0.0.9]
+
+No change, just house cleaning.
+
 ### [0.0.8]
 
 No change, just house cleaning.

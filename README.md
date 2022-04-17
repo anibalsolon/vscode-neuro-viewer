@@ -18,6 +18,10 @@ This extension allows the user to visualize the volumetric data in Nifti files, 
 
 A quick way to view your Nifti files. It shows some metadata and renders a volume!
 
+* Color palletes
+* Histogram
+* Range highlighting
+
 ![My brain in the viewer](https://raw.githubusercontent.com/anibalsolon/vscode-neuro-viewer/main/neuro-viewer-screenshot.png)
 
 *(yes, that's my head, so not worried on defacing it :)*

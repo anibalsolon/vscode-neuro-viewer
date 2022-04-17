@@ -51,7 +51,7 @@ const extension = {
   ...general,
   target: 'node',
   entry: {
-    extension: './extension/index.ts',
+    'extension-vscode': './extension-vscode/index.ts',
   },
   output: {
     ...general.output,

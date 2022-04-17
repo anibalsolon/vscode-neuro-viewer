@@ -54,11 +54,13 @@ th {
 canvas {
     image-rendering: pixelated;
     position: absolute;
+    z-index: 1000;
 }
 
 #main {
     flex-grow: 1;
     position: relative;
+    z-index: 1000;
 }
 
 #main::before {
@@ -73,10 +75,14 @@ canvas {
 
 #main[data-position]:not([data-position=""]):not([data-value])::after {
     content: "[" attr(data-position) "]";
+    position: absolute;
+    z-index: 2000;
 }
 
 #main[data-position]:not([data-position=""])::after {
     content: "[" attr(data-position) "]: " attr(data-value);
+    position: absolute;
+    z-index: 2000;
 }
 
 #message {
@@ -111,7 +117,7 @@ canvas {
 
 #tools {
     user-select: none;
-    z-index: 999;
+    z-index: 2000;
     display: flex;
     flex-direction: column;
     width: 3em;
@@ -182,6 +188,7 @@ canvas {
 #thumbnail {
     display: none;
     position: absolute;
+    z-index: 1500;
     left: 3.5em;
     width: 5em;
     height: 5em;

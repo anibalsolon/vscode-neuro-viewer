@@ -1,12 +1,12 @@
 import { EventEmitter } from '../events';
-import { hexToRgb, ColorPalette } from '../utils';
+import { hexToRgb, ensureHex, ColorPalette } from '../utils';
 
 const documentElement = getComputedStyle(document.documentElement);
 
 export const colors = {
-  light: hexToRgb(documentElement.getPropertyValue('--vscode-editor-foreground')),
-  dark: hexToRgb(documentElement.getPropertyValue('--vscode-editor-background')),
-  highlight: hexToRgb(documentElement.getPropertyValue('--vscode-minimap-findMatchHighlight')),
+  light: hexToRgb(ensureHex('rgba(89, 152, 192, 0.93)')),
+  dark: hexToRgb(ensureHex(documentElement.getPropertyValue('--vscode-editor-background'))),
+  highlight: hexToRgb(ensureHex(documentElement.getPropertyValue('--vscode-minimap-findMatchHighlight'))),
 };
 
 export const palettes = {

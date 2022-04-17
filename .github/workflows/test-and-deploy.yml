@@ -41,7 +41,7 @@ jobs:
       - run: git config --global user.email `jq -r '.author.email' package.json`
       - run: git status
       - run: npm version patch -m "[RELEASE] %s"
-      - run: git push
+      - run: npm run vscode:package
 
       - run: |
           [ -z "$PAT" ] && npm run vscode:vsce:publish "$PAT"
@@ -52,3 +52,5 @@ jobs:
           [ -z "$PAT" ] && npm run vscode:ovsx:publish "$PAT"
         env:
           PAT: ${{ secrets.OVSX_PAT }}
+
+      - run: git push

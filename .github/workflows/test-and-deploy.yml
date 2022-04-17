@@ -11,6 +11,7 @@ name: Build
 jobs:
 
   test:
+    if: "!startsWith(github.event.head_commit.message, '[RELEASE]')"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Buffer } from 'buffer';
-import { getNonce } from './utils';
-import { NiftiDocument } from './document';
+import { getNonce } from '../extension/utils';
+import { NiftiDocument } from '../extension/document';
 
 
 export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<NiftiDocument> {
@@ -77,11 +77,14 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
     if (!ext) {
       throw new Error('Unable to find extension');
     }
-
     const nonce = getNonce();
-    const scriptUri = ext.extensionUri.with({
-      path: ext.extensionUri.path + '/dist/webview/nifti/index.js',
-    });
+    const scriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(
+        ext.extensionUri,
+        "dist",
+        "webview/nifti/index.js"
+      )
+    );
     const uri = ext.extensionUri.with({
       path: ext.extensionUri.path + '/dist/webview/nifti/index.html',
     });

@@ -14,7 +14,7 @@
         "types/**/*.d.ts",
         "extension/**/*",
         "webview/**/*",
-        "test/**/*",
+        "test/**/*"
     ],
     "exclude": ["node_modules", "dist", ".vscode-test", ".vscode-test-web", ".test_output", ".nyc_output"]
 }

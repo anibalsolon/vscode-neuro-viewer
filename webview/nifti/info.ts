@@ -37,9 +37,9 @@ export class InfoView {
         `${s}${i < 3 ? 'mm' : (i == 3 && dims[3] > 1 ? 's' : '')}`
     ).join(', ');
   
-    this.el.geometry.innerHTML = header.affine.map(
+    this.el.geometry.innerHTML = 'MATRIX(' + header.affine.map(
       (l) => l.map((v) => dynFixed(-1 * v, 3)).join(',')
-    ).join(',');
+    ).join(',') + '):' + dims.join(',');
   
     this.el.orientation.innerHTML = dims.length < 3 ? '' : (
       `${header.qOffset.x > 0 ? 'R' : 'L'}` +

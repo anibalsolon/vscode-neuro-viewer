@@ -2,6 +2,7 @@ import zlib from 'zlib';
 import { Readable } from 'stream';
 import { Buffer } from 'buffer';
 import { FileReference, Slicer, Stepper, Caster, createReadableStream, awaitReadableStream, isGzipped } from '../../fs-utils';
+import { affineOrientation } from '../../utils';
 
 export enum NiftiDataType {
     NONE = 'NONE',
@@ -98,7 +99,11 @@ export interface NiftiHeader {
             intercept: number,
         }
     },
+    quatern: { b: number, c: number, d: number },
     qOffset: { x: number, y: number, z: number },
+    formCodes: { qForm?: string, sForm?: string },
+    orientation: number[],
+    intentName: string,
 }
 
 function getFirstAndLast(
@@ -224,7 +229,13 @@ export abstract class Nifti {
 
     protected abstract _affine(buffer: Buffer): number[][];
 
+    protected abstract _formCodes(buffer: Buffer): { qForm?: string, sForm?: string };
+
+    protected abstract _quatern(buffer: Buffer): { b: number, c: number, d: number };
+
     protected abstract _qOffset(buffer: Buffer): { x: number, y: number, z: number };
+
+    protected abstract _intentName(buffer: Buffer): string;
 
     protected abstract _dataInfo(buffer: Buffer): {
         dataType: NiftiDataType,
@@ -253,6 +264,10 @@ export abstract class Nifti {
       const affine = this._affine(buffer);
       const qOffset = this._qOffset(buffer);
 
+      const quatern = this._quatern(buffer);
+      const intentName = this._intentName(buffer);
+      const formCodes = this._formCodes(buffer);
+
       const {
         dataType,
         offset,
@@ -262,12 +277,18 @@ export abstract class Nifti {
         scalingSlope,
         scalingIntercept
       } = this._dataInfo(buffer);
+
+      const orientation = affineOrientation(affine);
         
       this._header = {
         endianness: this._endianness,
         dimensions,
         affine,
+        quatern,
         qOffset,
+        formCodes,
+        orientation,
+        intentName,
         pixelSizes,
         dataType,
         dataOffset: offset,

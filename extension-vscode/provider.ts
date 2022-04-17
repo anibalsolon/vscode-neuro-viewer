@@ -1,10 +1,10 @@
 import * as path from 'path';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
-import { disposeAll } from './dispose';
-import { getNonce } from './utils';
-import { NiftiDocument } from './document';
-import { FileServer } from './fileserver';
+import { disposeAll } from '../extension/dispose';
+import { getNonce } from '../extension/utils';
+import { NiftiDocument } from '../extension/document';
+import { FileServer } from '../extension/fileserver';
 
 export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<NiftiDocument> {
 

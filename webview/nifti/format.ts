@@ -9,6 +9,7 @@ export type NiftiHeader = {
   qOffset: { x: number, y: number, z: number },
   pixelSizes: number[],
   affine: number[][],
+  orientation: number[],
   values: {
     max: number,
     min: number,

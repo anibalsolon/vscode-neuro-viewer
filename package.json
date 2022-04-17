@@ -39,7 +39,7 @@
     "activationEvents": [
         "onCustomEditor:neuro-viewer.Nifti"
     ],
-    "main": "./dist/extension.js",
+    "main": "./dist/extension-vscode.js",
     "browser": "./dist/extension-web.js",
     "contributes": {
         "customEditors": [

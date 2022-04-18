@@ -20,6 +20,7 @@ A quick way to view your Nifti files. It shows some metadata and renders a volum
 * Color palletes
 * Histogram
 * Range highlighting
+* Web compatible (github.dev)
 
 ![My brain in the viewer](https://raw.githubusercontent.com/anibalsolon/vscode-neuro-viewer/main/neuro-viewer-screenshot.png)
 

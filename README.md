@@ -4,7 +4,6 @@
 <!-- (https://mattermost.brainhack.org/brainhack/channels/vscode-neuro-viewer) -->
 
 [![GitHub license](https://img.shields.io/github/license/anibalsolon/vscode-neuro-viewer.svg)](https://github.com/anibalsolon/vscode-neuro-viewer/blob/main/LICENSE)
-[![GitHub](https://flat.badgen.net/github/release/anibalsolon/vscode-neuro-viewer)](https://github.com/anibalsolon/vscode-neuro-viewer/releases)
 [![Visual Studio Marketplace](https://vsmarketplacebadge.apphb.com/installs-short/anibalsolon.neuro-viewer.svg)](https://marketplace.visualstudio.com/items?itemName=anibalsolon.neuro-viewer)
 [![Coverage Status](https://coveralls.io/repos/github/anibalsolon/vscode-neuro-viewer/badge.svg?branch=develop)](https://coveralls.io/github/anibalsolon/vscode-neuro-viewer?branch=main)
 ![Build](https://github.com/anibalsolon/vscode-neuro-viewer/actions/workflows/test-and-deploy.yml/badge.svg?branch=main)

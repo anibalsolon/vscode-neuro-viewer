@@ -11,7 +11,10 @@ name: Build
 jobs:
 
   test:
-    if: "!startsWith(github.event.head_commit.message, '[RELEASE]') && !contains(github.event.head_commit.message, '[SKIP:test]')"
+    if: |
+      !startsWith(github.event.head_commit.message, '[RELEASE]') &&
+      !startsWith(github.event.head_commit.message, '[PRERELEASE]') &&
+      !contains(github.event.head_commit.message, '[SKIP:test]')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -30,8 +33,40 @@ jobs:
           DISPLAY: ':99.0'
       - run: rm -f ./.coveralls.yml
 
+  prerelease:
+    if: |
+      github.event.ref == 'refs/heads/develop' &&
+      !startsWith(github.event.head_commit.message, '[RELEASE]' &&
+      !startsWith(github.event.head_commit.message, '[PRERELEASE]') &&
+      !contains(github.event.head_commit.message, '[SKIP:prerelease]')
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+      - uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - run: npm install
+      - run: git config --global user.name `jq -r '.author.name' package.json`
+      - run: git config --global user.email `jq -r '.author.email' package.json`
+      - run: git status
+      - run: |
+          VERSION=$(npm version prerelease --no-git-tag-version)
+          git add package.json package-lock.json
+          git commit -m "[RELEASE] ${VERSION}"
+
+      - run: git push
+
   deploy:
-    if: github.event.ref == 'refs/heads/main' && !startsWith(github.event.head_commit.message, '[RELEASE]') && !contains(github.event.head_commit.message, '[SKIP:deploy]')
+    if: |
+      github.event.ref == 'refs/heads/main' &&
+      !startsWith(github.event.head_commit.message, '[RELEASE]') &&
+      !contains(github.event.head_commit.message, '[SKIP:deploy]')
     needs: [test]
     runs-on: ubuntu-latest
     steps:

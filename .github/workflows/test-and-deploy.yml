@@ -36,7 +36,7 @@ jobs:
   prerelease:
     if: |
       github.event.ref == 'refs/heads/develop' &&
-      !startsWith(github.event.head_commit.message, '[RELEASE]' &&
+      !startsWith(github.event.head_commit.message, '[RELEASE]') &&
       !startsWith(github.event.head_commit.message, '[PRERELEASE]') &&
       !contains(github.event.head_commit.message, '[SKIP:prerelease]')
     needs: [test]

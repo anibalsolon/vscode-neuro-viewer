@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { Buffer } from 'buffer';
-import { getNonce } from '../extension/utils';
 import { NiftiDocument } from '../extension/document';
 
 
@@ -77,7 +76,6 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
     if (!ext) {
       throw new Error('Unable to find extension');
     }
-    const nonce = getNonce();
     const scriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(
         ext.extensionUri,
@@ -91,7 +89,6 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
     const html = await vscode.workspace.fs.readFile(uri);
     return Buffer.from(html).toString('utf8')
       .replace(/\$\{webview\.cspSource\}/g, webview.cspSource)
-      .replace(/\$\{nonce\}/g, nonce)
       .replace(/\$\{scriptUri\}/g, scriptUri.toString());
   }
 }

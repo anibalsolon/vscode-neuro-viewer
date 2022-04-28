@@ -2,7 +2,6 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import { disposeAll } from '../extension/dispose';
-import { getNonce } from '../extension/utils';
 import { NiftiDocument } from '../extension/document';
 import { FileServer } from '../extension/fileserver';
 
@@ -82,7 +81,6 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
     const scriptUri = webview.asWebviewUri(vscode.Uri.file(
       path.join(this._context.extensionPath, 'dist', 'webview', 'nifti', 'index.js')
     ));
-    const nonce = getNonce();
     const context = this._context;
     const data = fs.readFileSync(
       path.join(context.extensionPath, 'dist', 'webview', 'nifti', 'index.html'),
@@ -90,7 +88,6 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
     );
     return data
       .replace(/\$\{webview\.cspSource\}/g, webview.cspSource)
-      .replace(/\$\{nonce\}/g, nonce)
       .replace(/\$\{scriptUri\}/g, scriptUri.toString());
   }
 }

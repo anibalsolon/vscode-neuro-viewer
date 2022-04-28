@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${webview.cspSource}; img-src ${webview.cspSource} blob:; style-src 'unsafe-inline' ${webview.cspSource}; script-src 'nonce-${nonce}'; connect-src http://localhost:*;">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nifti Viewer</title>
 </head>
@@ -58,8 +57,8 @@
     <div id="main"></div>
     <div id="histogram"></div>
   </div>
-  <script nonce="${nonce}" src="${scriptUri}"></script>
-  <script nonce="${nonce}">
+  <script src="${scriptUri}"></script>
+  <script>
     document.addEventListener("DOMContentLoaded", function(event) {
       const vscode = acquireVsCodeApi();
       vscode.postMessage({ type: 'ready' });

@@ -8,7 +8,9 @@ on:
 
 jobs:
   analyze:
-    if: "!startsWith(github.event.head_commit.message, '[RELEASE]')"
+    if: |
+      !startsWith(github.event.head_commit.message, '[RELEASE]') &&
+      !startsWith(github.event.head_commit.message, '[PRERELEASE]')
     name: Analyze
     runs-on: ubuntu-latest
     permissions:

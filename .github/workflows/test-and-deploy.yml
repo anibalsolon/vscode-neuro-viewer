@@ -83,7 +83,7 @@ jobs:
       - run: git config --global user.name `jq -r '.author.name' package.json`
       - run: git config --global user.email `jq -r '.author.email' package.json`
       - run: git status
-      - run: npm version patch -m "[RELEASE] %s"
+      - run: npm version patch -m "[PRERELEASE] %s"
       - run: npm run vscode:package
 
       - run: |

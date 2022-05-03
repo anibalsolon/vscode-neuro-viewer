@@ -65,7 +65,6 @@ jobs:
 
           VVERSION=$(echo "$VERSION" | sed 's/^v//g')
           gh release create ${VERSION} --target develop --prerelease "neuro-viewer-${VVERSION}.vsix"
-          git push origin ${VERSION}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

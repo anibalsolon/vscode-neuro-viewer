@@ -58,12 +58,14 @@ jobs:
       - run: |
           VERSION=$(npm version prerelease --no-git-tag-version)
           git add package.json package-lock.json
-          git commit -m "[PRERELEASE] v${VERSION}"
+          git commit -m "[PRERELEASE] ${VERSION}"
           git push
 
           npm run vscode:package
-          gh release create v${VERSION} --target develop --prerelease "neuro-viewer-${VERSION}.vsix"
-          git push origin v${VERSION}
+
+          VVERSION=$(echo "$VERSION" | sed 's/^v//g')
+          gh release create ${VERSION} --target develop --prerelease "neuro-viewer-${VVERSION}.vsix"
+          git push origin ${VERSION}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

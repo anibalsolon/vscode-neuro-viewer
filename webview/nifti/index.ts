@@ -134,8 +134,6 @@ window.addEventListener('message', async (e) => {
         const header = body.header;
         let data = body.data;
 
-        console.log(data);
-
         const infoEl = document.getElementById('info');
         if (!infoEl) {
           return;

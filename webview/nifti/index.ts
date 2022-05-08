@@ -134,6 +134,8 @@ window.addEventListener('message', async (e) => {
         const header = body.header;
         let data = body.data;
 
+        console.log(data);
+
         const infoEl = document.getElementById('info');
         if (!infoEl) {
           return;
@@ -147,12 +149,6 @@ window.addEventListener('message', async (e) => {
         }
         
         message(messageEl, 'Loading');
-
-        if (!data) {
-          const res = await fetch(`${ws}${uuid}`);
-          const image = await res.arrayBuffer();
-          data = new Int16Array(image);
-        }
         prepareRender(ws, uuid, { header, data });
       }
       break;

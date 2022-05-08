@@ -1,9 +1,7 @@
-import * as path from 'path';
 import * as vscode from 'vscode';
-import * as fs from 'fs';
-import { disposeAll } from '../extension/dispose';
+import { Buffer } from 'buffer';
 import { NiftiDocument } from '../extension/document';
-import { FileServer } from '../extension/fileserver';
+
 
 export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<NiftiDocument> {
 
@@ -21,36 +19,19 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
   }
 
   private static readonly viewType = 'neuro-viewer.Nifti';
-
   private readonly webviews = new WebviewCollection();
-  private readonly _ws;
 
   constructor(
-        private readonly _context: vscode.ExtensionContext
+    private readonly _context: vscode.ExtensionContext
   ) {
-    this._ws = new FileServer();
   }
 
   async openCustomDocument(
     uri: vscode.Uri
   ): Promise<NiftiDocument> {
     console.log(`Open document ${uri}`);
-    const document: NiftiDocument = new NiftiDocument(uri);
-
-    try {
-      await document.metadata();
-    } catch (error) {
-      console.log('Error reading metadata', error);
-      throw error;
-    }
-
-    this._ws.serve(document);
-    const listeners: vscode.Disposable[] = [];
-    document.onDidDispose(() => {
-      disposeAll(listeners);
-      this._ws.dispose(document);
-    });
-
+    const data: Uint8Array = await vscode.workspace.fs.readFile(uri);
+    const document: NiftiDocument = new NiftiDocument(uri, data);
     return document;
   }
 
@@ -65,12 +46,24 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
     webviewPanel.webview.html = await this.getHtmlForWebview(webviewPanel.webview);
     webviewPanel.webview.onDidReceiveMessage(async (e) => {
       if (e.type === 'ready') {
+
+        const stream = await document.data(0, 1);
+        const chunks = [];
+        for await (const chunk of stream) {
+          chunks.push(chunk);
+        }
+        const length = chunks.reduce((acc, chunk) => acc + chunk.length, 0);
+        const data = new Int16Array(length);
+        chunks.reduce((acc, chunk) => {
+          data.set(chunk, acc);
+          return acc + chunk.length;
+        }, 0);
+
         webviewPanel.webview.postMessage({
           type: 'init',
           body: {
-            ws: this._ws.uri?.toString(),
+            data: data,
             header: await document.metadata(),
-            uuid: document.uuid,
           }
         });
       }
@@ -78,25 +71,31 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
   }
 
   private async getHtmlForWebview(webview: vscode.Webview): Promise<string> {
-    const scriptUri = webview.asWebviewUri(vscode.Uri.file(
-      path.join(this._context.extensionPath, 'dist', 'webview', 'nifti', 'index.js')
-    ));
-    const context = this._context;
-    const data = fs.readFileSync(
-      path.join(context.extensionPath, 'dist', 'webview', 'nifti', 'index.html'),
-      { encoding: 'utf-8' }
+    const ext = vscode.extensions.getExtension('anibalsolon.neuro-viewer');
+    if (!ext) {
+      throw new Error('Unable to find extension');
+    }
+    const scriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(
+        ext.extensionUri,
+        "dist",
+        "webview/nifti/index.js"
+      )
     );
-    return data
-      .replace(/\$\{webview\.cspSource\}/g, webview.cspSource)
+    const uri = ext.extensionUri.with({
+      path: ext.extensionUri.path + '/dist/webview/nifti/index.html',
+    });
+    const html = await vscode.workspace.fs.readFile(uri);
+    return Buffer.from(html).toString('utf8')
       .replace(/\$\{scriptUri\}/g, scriptUri.toString());
   }
 }
 
 class WebviewCollection {
   private readonly _webviews = new Set<{
-        readonly resource: string;
-        readonly webviewPanel: vscode.WebviewPanel;
-    }>();
+    readonly resource: string;
+    readonly webviewPanel: vscode.WebviewPanel;
+  }>();
 
   public *get(uri: vscode.Uri): Iterable<vscode.WebviewPanel> {
     const key = uri.toString();

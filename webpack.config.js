@@ -51,7 +51,7 @@ const extension = {
   ...general,
   target: 'node',
   entry: {
-    'extension-vscode': './extension-vscode/index.ts',
+    'extension-vscode': './extension/index.ts',
   },
   output: {
     ...general.output,
@@ -63,7 +63,7 @@ const webextension = {
   ...general,
   target: 'webworker',
   entry: {
-    'extension-web': './extension-web/index.ts',
+    'extension-web': './extension/index.ts',
   },
   output: {
     ...general.output,

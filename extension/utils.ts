@@ -15,7 +15,7 @@ export function ensureBuffer(chunk: Buffer | string): Buffer {
   return Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
 }
 
-const T = (A: number[][]): number[][] => A[0].map((_, i) => A.map((a) => a[i]));
+const T = (A: number[][]): number[][] => A[0]?.map((_, i) => A.map((a) => a[i])) || [];
 const dotVV = (a: number[], b: number[]): number => a.map((x, i) => a[i] * b[i]).reduce((m, n) => m + n);
 const dotMV = (A: number[][], b: number[]): number[] => A.map((a) => dotVV(a, b));
 const dotMM = (A: number[][], B:number[][]): number[][] => A.map((a) => dotMV(T(B), a));

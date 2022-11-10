@@ -2,7 +2,7 @@
     "name": "neuro-viewer",
     "displayName": "NeuroViewer",
     "description": "View your neuroimaging files in VSCode!",
-    "version": "0.0.14-8",
+    "version": "0.0.14-9",
     "publisher": "anibalsolon",
     "author": {
         "name": "Anibal Solon",

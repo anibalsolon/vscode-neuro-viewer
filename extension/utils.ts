@@ -36,6 +36,10 @@ export function affineOrientation(A: number[][], tol?: number): number[] {
   const p = m - 1;
 
   const RZS = A.slice(0, q).map((a) => a.slice(0, p));
+  if (reduceM(RZS, (v, x) => v === 0 && x == 0 ? 0 : 1) === 0) {
+    return [1, 1 ,1];
+  }
+
   const zooms = opV(reduceM0(opM(RZS, (x) => x * x), (v, x) => v + x), (v) => Math.sqrt(v));
   zooms.forEach((z, i) => zooms[i] = z == 0 ? 1 : z);
 

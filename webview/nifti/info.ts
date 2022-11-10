@@ -6,7 +6,7 @@ export class InfoView {
   el: { 
     root: HTMLElement,
     dimensions: HTMLElement,
-    pixelSizes: HTMLElement,
+    voxelSize: HTMLElement,
     orientation: HTMLElement,
     dataType: HTMLElement,
     geometry: HTMLElement,
@@ -19,7 +19,7 @@ export class InfoView {
     this.el = {
       root: el,
       dimensions: table.children[1].children[0].children[0] as HTMLElement,
-      pixelSizes: table.children[1].children[0].children[1] as HTMLElement,
+      voxelSize: table.children[1].children[0].children[1] as HTMLElement,
       orientation: table.children[1].children[0].children[2] as HTMLElement,
       dataType: table.children[1].children[0].children[3] as HTMLElement,
       geometry: table.children[3].children[0].children[0] as HTMLElement,
@@ -32,7 +32,7 @@ export class InfoView {
     const dims = header.dimensions;
     this.el.dimensions.innerHTML = `${dims.length}-D: [${dims.join(', ')}]`;
   
-    this.el.pixelSizes.innerHTML = header.pixelSizes.map(
+    this.el.voxelSize.innerHTML = header.voxelSize.map(
       (s, i) =>
         `${s}${i < 3 ? 'mm' : (i == 3 && dims[3] > 1 ? 's' : '')}`
     ).join(', ');

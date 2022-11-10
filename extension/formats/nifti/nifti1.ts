@@ -28,13 +28,13 @@ export class Nifti1 extends Nifti {
     return dims;
   }
 
-  protected _pixelSizes(buffer: Buffer, ndims: number): number[] {
-    const pixelSizes = <[number]> new Array(ndims + 1);
+  protected _voxelSize(buffer: Buffer, ndims: number): number[] {
+    const voxelSize = <[number]> new Array(ndims + 1);
     for (let d = 1; d <= ndims; d++) {
       const index = 76 + (d * 4);
-      pixelSizes[d] = this.read(buffer, NiftiDataType.FLOAT32, index);
+      voxelSize[d] = this.read(buffer, NiftiDataType.FLOAT32, index);
     }
-    return pixelSizes;
+    return voxelSize;
   }
 
   protected _affine(buffer: Buffer): number[][] {

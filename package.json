@@ -83,6 +83,8 @@
         "vscode:package": "vsce package",
         "vscode:vsce:publish": "vsce publish -i neuro-viewer-*.vsix --pat",
         "vscode:ovsx:publish": "ovsx publish neuro-viewer-*.vsix --pat",
+        "vscode:vsce": "vsce",
+        "vscode:ovsx": "ovsx",
         "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. data"
     },
     "devDependencies": {

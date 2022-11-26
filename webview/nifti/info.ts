@@ -30,6 +30,7 @@ export class InfoView {
   render() {
     const header = this.header;
     const dims = header.dimensions;
+
     this.el.dimensions.innerHTML = `${dims.length}-D: [${dims.join(', ')}]`;
   
     this.el.voxelSize.innerHTML = header.voxelSize.map(

@@ -2,7 +2,7 @@
     "name": "neuro-viewer",
     "displayName": "NeuroViewer",
     "description": "View your neuroimaging files in VSCode!",
-    "version": "0.0.13",
+    "version": "0.0.14-10",
     "publisher": "anibalsolon",
     "author": {
         "name": "Anibal Solon",
@@ -10,7 +10,7 @@
         "url": "https://anibalsolon.com/"
     },
     "engines": {
-        "vscode": "^1.65.0"
+        "vscode": "^1.64.0"
     },
     "categories": [
         "Visualization",
@@ -83,6 +83,8 @@
         "vscode:package": "vsce package",
         "vscode:vsce:publish": "vsce publish -i neuro-viewer-*.vsix --pat",
         "vscode:ovsx:publish": "ovsx publish neuro-viewer-*.vsix --pat",
+        "vscode:vsce": "vsce",
+        "vscode:ovsx": "ovsx",
         "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. data"
     },
     "devDependencies": {
@@ -92,7 +94,7 @@
         "@types/mocha": "^9.1.0",
         "@types/node": "^17.0.21",
         "@types/uuid": "^8.3.4",
-        "@types/vscode": "^1.65.0",
+        "@types/vscode": "^1.64.0",
         "@typescript-eslint/eslint-plugin": "^5.14.0",
         "@typescript-eslint/parser": "^5.14.0",
         "@vscode/test-electron": "^2.1.3",

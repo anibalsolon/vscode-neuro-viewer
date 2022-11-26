@@ -131,9 +131,9 @@ export class RenderViewLayer extends EventEmitter<EventType, EventArgs> {
     const axesSteps = getAxesSteps(this.image.header, axis);
     let { cols_step, rows_step } = axesSteps;
 
-    const voxels = this.image.header.pixelSizes;
-    const imageWidth =  cols * (voxels[rowscols[axis].cols] / voxels[rowscols[axis].rows]);
-    const imageHeight = rows * (voxels[rowscols[axis].rows] / voxels[rowscols[axis].cols]);
+    const voxel = this.image.header.voxelSize;
+    const imageWidth =  cols * (voxel[rowscols[axis].cols] / voxel[rowscols[axis].rows]);
+    const imageHeight = rows * (voxel[rowscols[axis].rows] / voxel[rowscols[axis].cols]);
 
     this._rendering[0] = cols;
     this._rendering[1] = rows;

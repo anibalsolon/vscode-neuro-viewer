@@ -87,7 +87,7 @@ export namespace NiftiDataType {
 export interface NiftiHeader {
     endianness: 'BE' | 'LE',
     dimensions: number[],
-    pixelSizes: number[],
+    voxelSize: number[],
     affine: number[][],
     dataType: NiftiDataType,
     dataOffset: number,
@@ -225,7 +225,7 @@ export abstract class Nifti {
 
     protected abstract _dims(buffer: Buffer): number[];
 
-    protected abstract _pixelSizes(buffer: Buffer, ndims: number): number[];
+    protected abstract _voxelSize(buffer: Buffer, ndims: number): number[];
 
     protected abstract _affine(buffer: Buffer): number[][];
 
@@ -260,7 +260,7 @@ export abstract class Nifti {
       const ndims = dims[0];
       const dimensions = dims.slice(1, 1 + ndims);
 
-      const pixelSizes = this._pixelSizes(buffer, ndims).slice(1, 1 + ndims);
+      const voxelSize = this._voxelSize(buffer, ndims).slice(1, 1 + ndims);
       const affine = this._affine(buffer);
       const qOffset = this._qOffset(buffer);
 
@@ -289,7 +289,7 @@ export abstract class Nifti {
         formCodes,
         orientation,
         intentName,
-        pixelSizes,
+        voxelSize,
         dataType,
         dataOffset: offset,
         dataBits: bits,

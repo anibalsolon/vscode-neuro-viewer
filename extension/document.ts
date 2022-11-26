@@ -19,7 +19,7 @@ export class NiftiDocument extends Disposable implements vscode.CustomDocument {
     super();
     this._uri = uri;
     this._uuid = v4();
-    this._fd = fd || fs.openSync(uri.path, 'r');
+    this._fd = fd || fs.openSync(uri.fsPath, 'r');
   }
 
   public get uri() { return this._uri; }

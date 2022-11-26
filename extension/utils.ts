@@ -1,14 +1,5 @@
 import { Buffer } from 'buffer';
 
-export function getNonce() {
-  let text = '';
-  const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i < 32; i++) {
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-  }
-  return text;
-}
-
 export function round(x: number): number { return x + 0.5 << 0; }
 
 export function ensureBuffer(chunk: Buffer | string): Buffer {
@@ -45,6 +36,10 @@ export function affineOrientation(A: number[][], tol?: number): number[] {
   const p = m - 1;
 
   const RZS = A.slice(0, q).map((a) => a.slice(0, p));
+  if (reduceM(RZS, (v, x) => v === 0 && x == 0 ? 0 : 1) === 0) {
+    return [1, 1 ,1];
+  }
+
   const zooms = opV(reduceM0(opM(RZS, (x) => x * x), (v, x) => v + x), (v) => Math.sqrt(v));
   zooms.forEach((z, i) => zooms[i] = z == 0 ? 1 : z);
 

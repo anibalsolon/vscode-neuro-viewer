@@ -1,5 +1,11 @@
 # Change Log
 
+### [0.0.14]
+
+* Better support for code-server, thanks to @TinasheMTapera for input
+* Fix image loading when the affine is zeroed, thanks to @nx10 and @pierre-nedelec for helping debugging it
+* Fix file access when running on Windows, thanks to @nx10 for providing with a fix for it
+
 ### [0.0.13]
 
 * Adjusts colors for high contrast themes

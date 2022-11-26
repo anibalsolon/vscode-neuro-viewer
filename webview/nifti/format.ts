@@ -7,7 +7,7 @@ export type NiftiHeader = {
   dimensions: number[],
   dataType: NiftiDataType,
   qOffset: { x: number, y: number, z: number },
-  pixelSizes: number[],
+  voxelSize: number[],
   affine: number[][],
   orientation: number[],
   values: {

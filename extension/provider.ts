@@ -8,6 +8,7 @@ import { appendFileSync, readFileSync, renameSync } from 'fs';
 import { v4 } from 'uuid';
 import * as temp from 'temp';
 import { assert } from 'console';
+import glob from 'fast-glob';
 temp.track();
 
 function toArrayBuffer(buffer: Uint8Array) {
@@ -20,11 +21,13 @@ function toArrayBuffer(buffer: Uint8Array) {
 }
 
 async function dcm2nii(uri: vscode.Uri, outUri: vscode.Uri): Promise<vscode.Uri>{
-  const images = (await vscode.workspace.fs.readDirectory(uri).then(async (dcms) => {
+  const dirUri = vscode.Uri.parse(dirname(uri.path));
+  const seriesUID = daikon.Series.parseImage(new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))))).getSeriesInstanceUID();
+  const images = (await glob([dirUri.path + "/**/*.dcm"]).then(async (dcms) => {
     return dcms.map(async (dcm) => {
-      return daikon.Series.parseImage(new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri.path + '/' + dcm[0])))));
+      return daikon.Series.parseImage(new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(dcm)))));
     });
-  }).then((promises) => Promise.all(promises))).sort((a, b) => {
+  }).then((promises) => Promise.all(promises))).filter((img) => img.getSeriesInstanceUID() === seriesUID).sort((a, b) => {
     const a_slic = a.getSliceLocation();
     const b_slic = b.getSliceLocation();
     return a_slic < b_slic ? -1 : a_slic > b_slic ? 1 : 0;
@@ -165,7 +168,7 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
     let data: Uint8Array = await vscode.workspace.fs.readFile(uri);
     if (uri.path.endsWith(".dcm")){
       const outDir = temp.mkdirSync(v4());
-      const uriNii = await dcm2nii(vscode.Uri.parse(dirname(uri.path)), vscode.Uri.parse(outDir));
+      const uriNii = await dcm2nii(uri, vscode.Uri.parse(outDir));
       data = await vscode.workspace.fs.readFile(uriNii);
     }
     const document: NiftiDocument = new NiftiDocument(uri, data);

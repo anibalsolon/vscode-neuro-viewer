@@ -53,6 +53,9 @@
                     },
                     {
                         "filenamePattern": "*.nii.gz"
+                    },
+                    {
+                        "filenamePattern": "*.dcm"
                     }
                 ]
             }
@@ -93,6 +96,7 @@
         "@types/glob": "^7.2.0",
         "@types/mocha": "^9.1.0",
         "@types/node": "^17.0.21",
+        "@types/temp": "^0.9.1",
         "@types/uuid": "^8.3.4",
         "@types/vscode": "^1.64.0",
         "@typescript-eslint/eslint-plugin": "^5.14.0",
@@ -122,7 +126,9 @@
     },
     "dependencies": {
         "@vscode/codicons": "^0.0.29",
+        "daikon": "^1.2.43",
         "process": "^0.11.10",
+        "temp": "^0.9.4",
         "uuid": "^8.3.2"
     }
 }

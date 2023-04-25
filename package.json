@@ -126,7 +126,11 @@
     },
     "dependencies": {
         "@vscode/codicons": "^0.0.29",
+        "console": "^0.7.2",
+        "constants": "^0.0.2",
         "daikon": "^1.2.43",
+        "os": "^0.1.2",
+        "path": "^0.12.7",
         "process": "^0.11.10",
         "temp": "^0.9.4",
         "uuid": "^8.3.2"

@@ -4,7 +4,7 @@ import { Buffer } from 'buffer';
 import { NiftiDocument } from '../extension/document';
 import { dirname } from 'path';
 import daikon from 'daikon';
-import { appendFileSync, readFileSync, renameSync } from 'fs';
+import { appendFileSync, readFileSync, renameSync, existsSync } from 'fs';
 import { v4 } from 'uuid';
 import * as temp from 'temp';
 import { assert } from 'console';
@@ -167,8 +167,18 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
     console.log(`Open document ${uri}`);
     let data: Uint8Array = await vscode.workspace.fs.readFile(uri);
     if (uri.path.endsWith(".dcm")){
-      const outDir = temp.mkdirSync(v4());
-      const uriNii = await dcm2nii(uri, vscode.Uri.parse(outDir));
+      const seriesUID = daikon.Series.parseImage(new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))))).getSeriesInstanceUID();
+      let cache = this._context.globalState.get('neuro-viewer') || {};
+      let uriNii = null;
+      if (seriesUID in cache && existsSync(cache[seriesUID])){
+        uriNii = vscode.Uri.parse(cache[seriesUID]);
+      }
+      else {
+        const outDir = temp.mkdirSync(v4());
+        uriNii = await dcm2nii(uri, vscode.Uri.parse(outDir));
+        cache[seriesUID] = uriNii.path;
+        this._context.globalState.update('neuro-viewer', cache);
+      }
       data = await vscode.workspace.fs.readFile(uriNii);
     }
     const document: NiftiDocument = new NiftiDocument(uri, data);

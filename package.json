@@ -1,6 +1,6 @@
 {
-    "name": "neuro-viewer-dcm",
-    "displayName": "NeuroViewerDCM",
+    "name": "neuro-viewer-dicom",
+    "displayName": "NeuroViewerDICOM",
     "description": "View your neuroimaging files in VSCode! With DICOM series support! Extension to NeuroViewer by anibalsolon,",
     "version": "0.0.15",
     "publisher": "kubzoey95",
@@ -34,15 +34,15 @@
         "url": "https://github.com/kubzoey95/vscode-neuro-viewer/tree/dcm_support"
     },
     "activationEvents": [
-        "onCustomEditor:neuro-viewer-dcm.Nifti"
+        "onCustomEditor:neuro-viewer-dicom.Nifti"
     ],
     "main": "./dist/extension-vscode.js",
     "browser": "./dist/extension-web.js",
     "contributes": {
         "customEditors": [
             {
-                "viewType": "neuro-viewer-dcm.Nifti",
-                "displayName": "Nifti/DICOM Viewer",
+                "viewType": "neuro-viewer-dicom.Nifti",
+                "displayName": "Nifti/DCM Viewer",
                 "priority": "default",
                 "selector": [
                     {
@@ -78,11 +78,11 @@
         "test:coverage:upload": "nyc report --reporter=text-lcov | coveralls",
         "lint": "eslint . --ext .ts",
         "lint:fix": "eslint . --ext .ts --fix",
-        "clear": "rm -rf dist coverage ./.vscode-test ./.vscode-test-web ./.nyc_output ./.test_output neuro-viewer-dcm-*.vsix",
+        "clear": "rm -rf dist coverage ./.vscode-test ./.vscode-test-web ./.nyc_output ./.test_output neuro-viewer-dicom-*.vsix",
         "vscode:prepublish": "webpack --mode production",
         "vscode:package": "vsce package",
-        "vscode:vsce:publish": "vsce publish -i neuro-viewer-dcm-*.vsix --pat",
-        "vscode:ovsx:publish": "ovsx publish neuro-viewer-dcm-*.vsix --pat",
+        "vscode:vsce:publish": "vsce publish -i neuro-viewer-dicom-*.vsix --pat",
+        "vscode:ovsx:publish": "ovsx publish neuro-viewer-dicom-*.vsix --pat",
         "vscode:vsce": "vsce",
         "vscode:ovsx": "ovsx",
         "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. data"

@@ -153,7 +153,7 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
     );
   }
 
-  private static readonly viewType = 'neuro-viewer-dcm.Nifti';
+  private static readonly viewType = 'neuro-viewer-dicom.Nifti';
   private readonly webviews = new WebviewCollection();
 
   constructor(
@@ -168,7 +168,7 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
     let data: Uint8Array = await vscode.workspace.fs.readFile(uri);
     if (uri.path.endsWith(".dcm")){
       const seriesUID = daikon.Series.parseImage(new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))))).getSeriesInstanceUID();
-      let cache = this._context.globalState.get('neuro-viewer-dcm') || {};
+      let cache = this._context.globalState.get('neuro-viewer-dicom') || {};
       let uriNii = null;
       if (seriesUID in cache && existsSync(cache[seriesUID])){
         uriNii = vscode.Uri.parse(cache[seriesUID]);
@@ -177,7 +177,7 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
         const outDir = temp.mkdirSync(v4());
         uriNii = await dcm2nii(uri, vscode.Uri.parse(outDir));
         cache[seriesUID] = uriNii.path;
-        this._context.globalState.update('neuro-viewer-dcm', cache);
+        this._context.globalState.update('neuro-viewer-dicom', cache);
       }
       data = await vscode.workspace.fs.readFile(uriNii);
     }
@@ -221,7 +221,7 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
   }
 
   private async getHtmlForWebview(webview: vscode.Webview): Promise<string> {
-    const ext = vscode.extensions.getExtension('kubzoey95.neuro-viewer-dcm');
+    const ext = vscode.extensions.getExtension('kubzoey95.neuro-viewer-dicom');
     if (!ext) {
       throw new Error('Unable to find extension');
     }

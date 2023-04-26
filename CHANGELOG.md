@@ -1,4 +1,7 @@
 # Change Log
+### [0.0.15]
+
+* added DCM support
 
 ### [0.0.14]
 

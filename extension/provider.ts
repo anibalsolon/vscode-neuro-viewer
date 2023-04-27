@@ -30,9 +30,9 @@ async function dcm2nii(uri: vscode.Uri, outUri: vscode.Uri): Promise<vscode.Uri>
   const dirUri = vscode.Uri.parse(dirname(uri.path));
   const firstImg = daikon.Series.parseImage(new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri)))));
   const bitsAllocated = firstImg.getBitsAllocated();
-  const bitpix = {16: 16}[bitsAllocated] || 32; 
-  const data_type = {16: 4}[bitsAllocated] || 16;
-  const arrayType = {16: Int16Array}[bitsAllocated] || Float32Array;
+  const bitpix = bitsAllocated > 16 ? 32 : 16;
+  const data_type =  bitsAllocated > 16 ? 16 : 4;
+  const arrayType = bitsAllocated > 16 ? Float32Array : Int16Array;
   const seriesUID = firstImg.getSeriesInstanceUID();
   const images = (await glob([dirUri.path + "/**/*.dcm"]).then(async (dcms) => {
     return dcms.map(async (dcm) => {

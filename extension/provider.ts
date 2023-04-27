@@ -20,9 +20,20 @@ function toArrayBuffer(buffer: Uint8Array) {
   return arrayBuffer;
 }
 
+const arrayMinMax = (arr) =>
+  arr.reduce(([min, max], val) => [Math.min(min, val), Math.max(max, val)], [
+    Number.POSITIVE_INFINITY,
+    Number.NEGATIVE_INFINITY,
+  ]);
+
 async function dcm2nii(uri: vscode.Uri, outUri: vscode.Uri): Promise<vscode.Uri>{
   const dirUri = vscode.Uri.parse(dirname(uri.path));
-  const seriesUID = daikon.Series.parseImage(new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))))).getSeriesInstanceUID();
+  const firstImg = daikon.Series.parseImage(new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri)))));
+  const bitsAllocated = firstImg.getBitsAllocated();
+  const bitpix = {16: 16}[bitsAllocated] || 32; 
+  const data_type = {16: 4}[bitsAllocated] || 16;
+  const arrayType = {16: Int16Array}[bitsAllocated] || Float32Array;
+  const seriesUID = firstImg.getSeriesInstanceUID();
   const images = (await glob([dirUri.path + "/**/*.dcm"]).then(async (dcms) => {
     return dcms.map(async (dcm) => {
       return daikon.Series.parseImage(new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(dcm)))));
@@ -34,35 +45,42 @@ async function dcm2nii(uri: vscode.Uri, outUri: vscode.Uri): Promise<vscode.Uri>
   });
   const imgPath = outUri.path + "/" + v4();
   const series = new daikon.Series();
-  let minVal = images[0].getInterpretedData()[0];
-  let maxVal = images[0].getInterpretedData()[0];
+  let minVal = new arrayType(images[0].getInterpretedData())[0];
+  let maxVal = new arrayType(images[0].getInterpretedData())[0];
   const l = images[0].getInterpretedData().length;
   for (const image of images){
     if (image === null) {
       console.error(daikon.Series.parserError);
     } else if (image.hasPixelData()) {
-      const {data, max, maxIndex, min, minIndex, numCols, numRows} = image.getInterpretedData(true, true);
+      const {data, dummyMax, maxIndex, dummyMin, minIndex, numCols, numRows} = image.getInterpretedData(true, true);
+      const typedArray = new arrayType(data);
+      const [min, max] = arrayMinMax(typedArray);
       if (max > maxVal){maxVal = max;}
       if (min < minVal){minVal = min;}
       assert(l === data.length);
-      appendFileSync(imgPath, new Uint8Array(new Float32Array(data).buffer));
+      assert(image.getBitsAllocated() === bitsAllocated);
+      appendFileSync(imgPath, new Uint8Array(typedArray.buffer));
       series.addImage(image);
     }
   }
+  if (firstImg.getWindowCenter() && firstImg.getWindowWidth()){
+    minVal = new arrayType(firstImg.getWindowCenter())[0] - new arrayType(firstImg.getWindowWidth())[0] / 2;
+    maxVal = new arrayType(firstImg.getWindowCenter())[0] + new arrayType(firstImg.getWindowWidth())[0] / 2;
+  }
   series.buildSeries();
-  const ori = images[0].getTag(0x0020,0x0037).value;
-  const firstPos = images[0].getTag(0x0020,0x0032).value;
-  const lastPos = images[images.length - 1].getTag(0x0020,0x0032).value;
-  const thi = images[0].getTag(0x0018,0x0050).value;
-  const n = images.length;
+  //   const ori = images[0].getTag(0x0020,0x0037).value;
+  //   const firstPos = images[0].getTag(0x0020,0x0032).value;
+  //   const lastPos = images[images.length - 1].getTag(0x0020,0x0032).value;
+  //   const thi = images[0].getTag(0x0018,0x0050).value;
+  //   const n = images.length;
   // https://brainder.org/2015/04/03/the-nifti-2-file-format/
   // https://core.ac.uk/download/pdf/79518053.pdf
   const bytes = [
     new Uint8Array(new Int32Array([540]).buffer), // sizeof_hdr
     Buffer.from("n+2"), // magic[0-2]
     new Uint8Array(5),
-    new Uint8Array(new Int16Array([16]).buffer), // data_type
-    new Uint8Array(new Int16Array([32]).buffer), // bitpix
+    new Uint8Array(new Int16Array([data_type]).buffer), // data_type
+    new Uint8Array(new Int16Array([bitpix]).buffer), // bitpix
     new Uint8Array(new BigInt64Array([
       BigInt(3), // dim[0]
       BigInt(series.images[0].getRows()), // dim[1]

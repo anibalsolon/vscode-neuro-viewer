@@ -1,10 +1,13 @@
 # Change Log
+### [0.0.15]
+
+* added DCM support
 
 ### [0.0.14]
 
-* Better support for code-server, thanks to @TinasheMTapera for input
-* Fix image loading when the affine is zeroed, thanks to @nx10 and @pierre-nedelec for helping debugging it
-* Fix file access when running on Windows, thanks to @nx10 for providing with a fix for it
+* Better support for code-server, thanks to [@TinasheMTapera](https://github.com/TinasheMTapera) for input
+* Fix image loading when the affine is zeroed, thanks to [@nx10](https://github.com/nx10) and [@pierre-nedelec](https://github.com/pierre-nedelec) for helping debugging it
+* Fix file access when running on Windows, thanks to [@nx10](https://github.com/nx10) for providing with a fix for it
 
 ### [0.0.13]
 

@@ -6,9 +6,11 @@
         "outDir": "dist",
         "rootDir": ".",
         "sourceMap": true,
+        "mapRoot": "${workspaceFolder}",
         "esModuleInterop": true,
         "strict": true,
-        "typeRoots": ["./types", "./node_modules/@types"]
+        "allowJs": true,
+        "typeRoots": ["./types", "./node_modules/@types"],
     },
     "include": [
         "types/**/*.d.ts",

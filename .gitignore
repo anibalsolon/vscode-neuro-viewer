@@ -7,3 +7,4 @@ dist
 .nyc_output
 .test_output
 coverage
+!ext.vsix

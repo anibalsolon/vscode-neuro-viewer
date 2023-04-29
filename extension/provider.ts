@@ -58,6 +58,8 @@ async function dcm2nii(uri: vscode.Uri, outUri: vscode.Uri): Promise<vscode.Uri>
       }
       else{
         series.getPixelData = () => {return {'value': new DataView(new Uint8Array(new arrayType(series.getInterpretedData()).buffer).buffer)};};
+        series.getDataScaleSlope = () => 1;
+        series.getDataScaleIntercept = () => 0;
       }
       return series;
     });

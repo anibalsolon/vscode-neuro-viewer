@@ -24,6 +24,16 @@ const general = {
   module: {
     rules: [
       {
+        test: /\.m?js/,
+        type: "javascript/auto",
+      },
+      {
+        test: /\.m?js/,
+        resolve: {
+          fullySpecified: false,
+        },
+      },
+      {
         test: /\.html$/i,
         loader: 'html-loader',
       },
@@ -103,6 +113,10 @@ const webview = {
     new CopyPlugin({
       patterns: [
         { from: 'webview/nifti/index.html', to: 'webview/nifti/index.html' },
+        { from: './extension/codec-openjpeg/openjpegjs.js.mem', to: 'openjpegjs.js.mem' },
+        { from: './extension/codec-openjpeg/openjpegjs_decode.js.mem', to: 'openjpegjs_decode.js.mem' },
+        { from: './extension/codec-openjpeg/openjpegwasm.wasm', to: 'openjpegwasm.wasm' },
+        { from: './extension/codec-openjpeg/openjpegwasm_decode.wasm', to: 'openjpegwasm_decode.wasm' },
       ],
     }),
   ],

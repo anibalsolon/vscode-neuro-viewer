@@ -4,11 +4,13 @@ import { Buffer } from 'buffer';
 import { NiftiDocument } from '../extension/document';
 import { dirname } from 'path';
 import daikon from 'daikon';
-import { appendFileSync, readFileSync, renameSync, existsSync } from 'fs';
+import { appendFileSync, readFileSync, renameSync, existsSync, writeFileSync } from 'fs';
 import { v4 } from 'uuid';
 import * as temp from 'temp';
 import { assert } from 'console';
 import glob from 'fast-glob';
+import { OpenJPEGWASM } from './codec-openjpeg';
+import { getJpegData } from './getjpeg';
 temp.track();
 
 function toArrayBuffer(buffer: Uint8Array) {
@@ -26,17 +28,35 @@ const arrayMinMax = (arr) =>
     Number.NEGATIVE_INFINITY,
   ]);
 
-async function dcm2nii(uri: vscode.Uri, outUri: vscode.Uri): Promise<vscode.Uri>{
+
+async function dcm2nii(uri: vscode.Uri, outUri: vscode.Uri): Promise<vscode.Uri> {
+  const openjpeg = await new OpenJPEGWASM();
   const dirUri = vscode.Uri.parse(dirname(uri.path));
   const firstImg = daikon.Series.parseImage(new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri)))));
   const bitsAllocated = firstImg.getBitsAllocated();
-  const bitpix = bitsAllocated > 16 ? 32 : 16;
-  const data_type =  bitsAllocated > 16 ? 16 : 4;
-  const arrayType = bitsAllocated > 16 ? Float32Array : Int16Array;
+  const bitpix = bitsAllocated > 16 ? 32 : bitsAllocated;
+  const data_type = bitsAllocated > 16 ? 16 : {16: 4, 8: 2}[bitsAllocated];
+  const arrayType = bitsAllocated > 16 ? Float32Array : {16: Int16Array, 8: Int8Array}[bitsAllocated];
   const seriesUID = firstImg.getSeriesInstanceUID();
   const images = (await glob([dirUri.path + "/**/*.dcm"]).then(async (dcms) => {
     return dcms.map(async (dcm) => {
-      return daikon.Series.parseImage(new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(dcm)))));
+      //https://www.npmjs.com/package/@cornerstonejs/codec-openjpeg
+      let buffer = new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(dcm))));
+      let series = daikon.Series.parseImage(buffer);
+      if (series.isCompressedJPEG2000()) {
+        const jpegDatas = getJpegData(buffer);
+        const jpegData = jpegDatas[0];
+
+        const decoder = new openjpeg.J2KDecoder();
+        const pixelData = new Uint8Array(jpegData.buffer);
+        const encodedBuffer = decoder.getEncodedBuffer(pixelData.length);
+        encodedBuffer.set(pixelData);
+        decoder.decode();
+        const decodedBuffer = new DataView(new Uint8Array(decoder.getDecodedBuffer()).buffer);
+        series.getPixelData = () => {return {'value': decodedBuffer};};
+        series.isCompressed = () => false;
+      }
+      return series;
     });
   }).then((promises) => Promise.all(promises))).filter((img) => img.getSeriesInstanceUID() === seriesUID).sort((a, b) => {
     const a_slic = a.getSliceLocation();
@@ -47,32 +67,34 @@ async function dcm2nii(uri: vscode.Uri, outUri: vscode.Uri): Promise<vscode.Uri>
   const series = new daikon.Series();
   let minVal = new arrayType(images[0].getInterpretedData())[0];
   let maxVal = new arrayType(images[0].getInterpretedData())[0];
-  const l = images[0].getInterpretedData().length;
-  for (const image of images){
+  const l = new Uint8Array(images[0].getPixelData().value.buffer).length;
+  for (const image of images) {
     if (image === null) {
       console.error(daikon.Series.parserError);
     } else if (image.hasPixelData()) {
-      const {data, dummyMax, maxIndex, dummyMin, minIndex, numCols, numRows} = image.getInterpretedData(true, true);
-      const typedArray = new arrayType(data);
+      const data = new Uint8Array(image.getPixelData().value.buffer);
+      const slope = image.getDataScaleSlope() || 1;
+      const intercept = image.getDataScaleIntercept() || 0;
+      const typedArray = new arrayType(data.buffer).map((el) => el * slope + intercept);
       const [min, max] = arrayMinMax(typedArray);
-      if (max > maxVal){maxVal = max;}
-      if (min < minVal){minVal = min;}
+      if (max > maxVal) { maxVal = max; }
+      if (min < minVal) { minVal = min; }
       assert(l === data.length);
       assert(image.getBitsAllocated() === bitsAllocated);
       appendFileSync(imgPath, new Uint8Array(typedArray.buffer));
       series.addImage(image);
     }
   }
-  if (firstImg.getWindowCenter() && firstImg.getWindowWidth()){
+  if (firstImg.getWindowCenter() && firstImg.getWindowWidth()) {
     minVal = new arrayType(firstImg.getWindowCenter())[0] - new arrayType(firstImg.getWindowWidth())[0] / 2;
     maxVal = new arrayType(firstImg.getWindowCenter())[0] + new arrayType(firstImg.getWindowWidth())[0] / 2;
   }
   series.buildSeries();
-  //   const ori = images[0].getTag(0x0020,0x0037).value;
-  //   const firstPos = images[0].getTag(0x0020,0x0032).value;
-  //   const lastPos = images[images.length - 1].getTag(0x0020,0x0032).value;
-  //   const thi = images[0].getTag(0x0018,0x0050).value;
-  //   const n = images.length;
+  const ori = images[0].getTag(0x0020, 0x0037).value;
+  const firstPos = images[0].getTag(0x0020, 0x0032).value;
+  const lastPos = images[images.length - 1].getTag(0x0020, 0x0032).value;
+  const thi = images[0].getPixelSpacing();
+  const n = images.length;
   // https://brainder.org/2015/04/03/the-nifti-2-file-format/
   // https://core.ac.uk/download/pdf/79518053.pdf
   const bytes = [
@@ -107,8 +129,10 @@ async function dcm2nii(uri: vscode.Uri, outUri: vscode.Uri): Promise<vscode.Uri>
     ]).buffer),
     new Uint8Array(new BigInt64Array([BigInt(544)]).buffer), // vox_offset
     new Uint8Array(new Float64Array([
-      0, //1, // scl_slope
-      0, //0, // scl_inter
+      1, // scl_slope
+      0, // scl_inter
+      //   0, //1, // scl_slope
+      //   0, //0, // scl_inter
       maxVal, // cal_max
       minVal, // cal_min
       0, // slice_duration
@@ -129,18 +153,18 @@ async function dcm2nii(uri: vscode.Uri, outUri: vscode.Uri): Promise<vscode.Uri>
       0, // quatern_c
       0, // quatern_d
       ...images[0].getImagePosition(), // qoffset_x qoffset_y qoffset_z
-      //   -ori[0]*thi[0], -ori[3]*thi[1], -(lastPos[0] - firstPos[0]) / (n - 1), -firstPos[0], // srow_x[4]
-      //   -ori[1]*thi[0], -ori[4]*thi[1], -(lastPos[1] - firstPos[1]) / (n - 1), -firstPos[1], // srow_y[4]
-      //    ori[2]*thi[0],  ori[5]*thi[1],  (lastPos[2] - firstPos[2]) / (n - 1),  firstPos[2] // srow_z[4]
-     -1 , 0, 0, 0, // srow_x[4]
-      0 ,-1, 0, 0, // srow_y[4]
-      0 , 0, 1, 0 // srow_z[4]
+      -ori[0]*thi[0], -ori[3]*thi[1], -(lastPos[0] - firstPos[0]) / (n - 1), -firstPos[0], // srow_x[4]
+      -ori[1]*thi[0], -ori[4]*thi[1], -(lastPos[1] - firstPos[1]) / (n - 1), -firstPos[1], // srow_y[4]
+       ori[2]*thi[0],  ori[5]*thi[1],  (lastPos[2] - firstPos[2]) / (n - 1),  firstPos[2] // srow_z[4]
+    //   -1, 0, 0, 0, // srow_x[4]
+    //   0, -1, 0, 0, // srow_y[4]
+    //   0, 0, 1, 0 // srow_z[4]
     ]).buffer),
     new Uint8Array(new Int32Array([
       0, // slice_code
       2, // xyzt_units
       0, // intent_code
-    ]).buffer), 
+    ]).buffer),
     new Uint8Array(16), // intent_name[16]
     new Uint8Array(1), // dim_info
     new Uint8Array(15), // unused_str[15]
@@ -148,7 +172,6 @@ async function dcm2nii(uri: vscode.Uri, outUri: vscode.Uri): Promise<vscode.Uri>
   ];
   const hdrPath = outUri.path + "/" + v4();
   bytes.map((buf) => appendFileSync(hdrPath, buf));
-//   const outcome = outUri.path + "/" + v4() + ".nii";
   console.log(new Uint8Array(readFileSync(imgPath)).length);
   appendFileSync(hdrPath, new Uint8Array(readFileSync(imgPath)));
   const outcome = hdrPath + ".nii";
@@ -171,7 +194,7 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
     );
   }
 
-  private static readonly viewType = 'neuro-viewer-dicom.Nifti';
+  private static readonly viewType = 'neuro-viewer.Nifti';
   private readonly webviews = new WebviewCollection();
 
   constructor(
@@ -184,18 +207,18 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
   ): Promise<NiftiDocument> {
     console.log(`Open document ${uri}`);
     let data: Uint8Array = await vscode.workspace.fs.readFile(uri);
-    if (uri.path.endsWith(".dcm")){
+    if (uri.path.endsWith(".dcm")) {
       const seriesUID = daikon.Series.parseImage(new DataView(toArrayBuffer(await vscode.workspace.fs.readFile(vscode.Uri.parse(uri))))).getSeriesInstanceUID();
-      let cache = this._context.globalState.get('neuro-viewer-dicom') || {};
+      let cache = this._context.globalState.get('neuro-viewer') || {};
       let uriNii = null;
-      if (seriesUID in cache && existsSync(cache[seriesUID])){
+      if (seriesUID in cache && existsSync(cache[seriesUID])) {
         uriNii = vscode.Uri.parse(cache[seriesUID]);
       }
       else {
         const outDir = temp.mkdirSync(v4());
         uriNii = await dcm2nii(uri, vscode.Uri.parse(outDir));
         cache[seriesUID] = uriNii.path;
-        this._context.globalState.update('neuro-viewer-dicom', cache);
+        this._context.globalState.update('neuro-viewer', cache);
       }
       data = await vscode.workspace.fs.readFile(uriNii);
     }
@@ -239,7 +262,7 @@ export class NiftiEditorProvider implements vscode.CustomReadonlyEditorProvider<
   }
 
   private async getHtmlForWebview(webview: vscode.Webview): Promise<string> {
-    const ext = vscode.extensions.getExtension('kubzoey95.neuro-viewer-dicom');
+    const ext = vscode.extensions.getExtension('anibalsolon.neuro-viewer');
     if (!ext) {
       throw new Error('Unable to find extension');
     }

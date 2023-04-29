@@ -1,12 +1,13 @@
 {
-    "name": "neuro-viewer-dicom",
-    "displayName": "NeuroViewerDICOM",
-    "description": "View your neuroimaging files in VSCode! With DICOM series support! Extension to NeuroViewer by anibalsolon,",
-    "version": "0.0.15",
-    "publisher": "kubzoey95",
+    "name": "neuro-viewer",
+    "displayName": "NeuroViewer",
+    "description": "View your neuroimaging files in VSCode!",
+    "version": "0.0.14",
+    "publisher": "anibalsolon",
     "author": {
-        "name": "Jakub Belicki",
-        "email": "jakubsliwice@o2.pl"
+        "name": "Anibal Solon",
+        "email": "anibalsolon@gmail.com",
+        "url": "https://anibalsolon.com/"
     },
     "engines": {
         "vscode": "^1.64.0"
@@ -31,18 +32,22 @@
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/kubzoey95/vscode-neuro-viewer/tree/dcm_support"
+        "url": "https://github.com/anibalsolon/vscode-neuro-viewer.git"
+    },
+    "bugs": {
+        "url": "https://github.com/anibalsolon/vscode-neuro-viewer/issues",
+        "email": "anibalsolon@gmail.com"
     },
     "activationEvents": [
-        "onCustomEditor:neuro-viewer-dicom.Nifti"
+        "onCustomEditor:neuro-viewer.Nifti"
     ],
     "main": "./dist/extension-vscode.js",
     "browser": "./dist/extension-web.js",
     "contributes": {
         "customEditors": [
             {
-                "viewType": "neuro-viewer-dicom.Nifti",
-                "displayName": "Nifti/DCM Viewer",
+                "viewType": "neuro-viewer.Nifti",
+                "displayName": "Nifti/DICOM Viewer",
                 "priority": "default",
                 "selector": [
                     {
@@ -78,11 +83,11 @@
         "test:coverage:upload": "nyc report --reporter=text-lcov | coveralls",
         "lint": "eslint . --ext .ts",
         "lint:fix": "eslint . --ext .ts --fix",
-        "clear": "rm -rf dist coverage ./.vscode-test ./.vscode-test-web ./.nyc_output ./.test_output neuro-viewer-dicom-*.vsix",
+        "clear": "rm -rf dist coverage ./.vscode-test ./.vscode-test-web ./.nyc_output ./.test_output neuro-viewer-*.vsix",
         "vscode:prepublish": "webpack --mode production",
         "vscode:package": "vsce package",
-        "vscode:vsce:publish": "vsce publish -i neuro-viewer-dicom-*.vsix --pat",
-        "vscode:ovsx:publish": "ovsx publish neuro-viewer-dicom-*.vsix --pat",
+        "vscode:vsce:publish": "vsce publish -i neuro-viewer-*.vsix --pat",
+        "vscode:ovsx:publish": "ovsx publish neuro-viewer-*.vsix --pat",
         "vscode:vsce": "vsce",
         "vscode:ovsx": "ovsx",
         "open-in-browser": "vscode-test-web --extensionDevelopmentPath=. data"
@@ -118,7 +123,7 @@
         "typescript": "^4.6.2",
         "util": "^0.12.4",
         "vsce": "^2.7.0",
-        "webpack": "^5.70.0",
+        "webpack": "^5.81.0",
         "webpack-cli": "^4.9.2"
     },
     "dependencies": {

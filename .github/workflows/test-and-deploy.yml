@@ -64,7 +64,7 @@ jobs:
           npm run vscode:package
 
           VVERSION=$(echo "$VERSION" | sed 's/^v//g')
-          gh release create ${VERSION} --target develop --prerelease "neuro-viewer-dicom-${VVERSION}.vsix"
+          gh release create ${VERSION} --target develop --prerelease "neuro-viewer-${VVERSION}.vsix"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

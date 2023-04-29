@@ -56,6 +56,9 @@ async function dcm2nii(uri: vscode.Uri, outUri: vscode.Uri): Promise<vscode.Uri>
         series.getPixelData = () => {return {'value': decodedBuffer};};
         series.isCompressed = () => false;
       }
+      else{
+        series.getPixelData = () => {return {'value': new DataView(new Uint8Array(new arrayType(series.getInterpretedData()).buffer).buffer)};};
+      }
       return series;
     });
   }).then((promises) => Promise.all(promises))).filter((img) => img.getSeriesInstanceUID() === seriesUID).sort((a, b) => {
